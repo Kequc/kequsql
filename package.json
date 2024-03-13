@@ -2,9 +2,8 @@
   "name": "kequsql",
   "version": "0.0.1",
   "description": "ORM for TypeScript | PostgreSQL, MySQL",
-  "main": "src/kequsql.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/kequsql.ts",
     "test": "kequtest --ts"
   },
   "keywords": [
@@ -18,6 +17,7 @@
   "author": "Nathan Lunde-Berry",
   "license": "ISC",
   "devDependencies": {
+    "@types/pluralize": "^0.0.33",
     "kequtest": "^1.0.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
@@ -25,5 +25,8 @@
   "optionalDependencies": {
     "mysql2": "^3.9.2",
     "pg": "^8.11.3"
+  },
+  "dependencies": {
+    "pluralize": "^8.0.0"
   }
 }
