@@ -1,46 +1,36 @@
-import { TSchemaColumn, TScheme } from '../types';
-
-export enum COLUMN_TYPE {
-    BOOLEAN,
-    DATE,
-    DATETIME,
-    TIME,
-    ENUM,
-    INTEGER,
-    STRING,
-    TEXT,
-    UUID
-};
+import { TScheme } from '../types';
+import { TSchemaColumn } from './schema-types';
 
 export default function renderColumnType (scheme: TScheme, column: TSchemaColumn) {
     switch (scheme) {
-        case 'mysql': return renderMysqkColumnType(column);
-        case 'postgres': return renderPostgresColumnType(column);
+        case 'mysql': return renderMysqlColumnType(column) + (column.nullable ? '' : ' NOT NULL');
+        case 'postgres': return renderPostgresColumnType(column) + (column.nullable ? '' : ' NOT NULL');
     }
 
     throw new Error(`Unknown scheme: ${scheme}`);
 }
 
-function renderMysqkColumnType (column: TSchemaColumn) {
-    switch (column.type) {
-        case COLUMN_TYPE.BOOLEAN: return 'TINYINT(1) CHECK (value IN (0,1))';
-        case COLUMN_TYPE.DATE: return 'DATE(3)';
-        case COLUMN_TYPE.DATETIME: return 'DATETIME';
-        case COLUMN_TYPE.ENUM: return `ENUM(${column.errata})`;
-        case COLUMN_TYPE.INTEGER: return 'INT';
-        case COLUMN_TYPE.STRING: return `VARCHAR(${column.size})`;
-        case COLUMN_TYPE.TEXT: return getMysqlTextColumnType(column);
-        case COLUMN_TYPE.TIME: return 'TIME';
-        case COLUMN_TYPE.UUID: return 'CHAR(36)';
+function renderMysqlColumnType (column: TSchemaColumn) {
+    const columnType = column.type;
+    switch (columnType) {
+        case 'boolean': return 'TINYINT(1) CHECK (value IN (0,1))';
+        case 'date': return 'DATE';
+        case 'datetime': return 'DATETIME';
+        case 'enum': return `ENUM(${getEnumValues(column.values)})`;
+        case 'integer': return 'INT' + (column.auto ? ' AUTO_INCREMENT' : '');
+        case 'string': return `VARCHAR(${column.size ?? 255})`;
+        case 'text': return getMysqlTextColumnType(column);
+        case 'time': return 'TIME';
+        case 'uuid': return 'CHAR(36)';
     }
 
-    throw new Error(`Unknown column type: ${column.type}`);
+    throw new Error(`Unknown column type: ${columnType}`);
 }
 
-function getMysqlTextColumnType (column: TSchemaColumn) {
-    if (column.errata === 'medium') {
+function getMysqlTextColumnType (column: TSchemaColumn & { type: 'text' }) {
+    if (column.size === 'medium') {
         return 'MEDIUMTEXT';
-    } else if (column.errata === 'long') {
+    } else if (column.size === 'long') {
         return 'LONGTEXT';
     } else if (typeof column.size === 'number') {
         return `TEXT(${column.size})`;
@@ -50,17 +40,55 @@ function getMysqlTextColumnType (column: TSchemaColumn) {
 }
 
 function renderPostgresColumnType (column: TSchemaColumn) {
-    switch (column.type) {
-        case COLUMN_TYPE.BOOLEAN: return 'BOOLEAN';
-        case COLUMN_TYPE.DATE: return 'DATE';
-        case COLUMN_TYPE.DATETIME: return 'TIMESTAMP';
-        case COLUMN_TYPE.ENUM: return `VARCHAR(${column.size}) CHECK (${column.name} IN (${column.errata}))`;
-        case COLUMN_TYPE.INTEGER: return column.increment ? 'SERIAL' : 'INTEGER';
-        case COLUMN_TYPE.STRING: return `VARCHAR(${column.size})`;
-        case COLUMN_TYPE.TEXT: return 'TEXT';
-        case COLUMN_TYPE.TIME: return 'TIME';
-        case COLUMN_TYPE.UUID: return 'UUID';
+    const columnType = column.type;
+    switch (columnType) {
+        case 'boolean': return 'BOOLEAN';
+        case 'date': return 'DATE';
+        case 'datetime': return 'TIMESTAMP';
+        case 'enum': return getPostgresEnumColumnType(column);
+        case 'integer': return column.auto ? 'SERIAL' : 'INTEGER';
+        case 'string': return `VARCHAR(${column.size ?? 255})`;
+        case 'text': return 'TEXT';
+        case 'time': return 'TIME';
+        case 'uuid': return 'UUID';
     }
 
-    throw new Error(`Unknown column type: ${column.type}`);
+    throw new Error(`Unknown column type: ${columnType}`);
+}
+
+// TODO: Consider using real enum types for postgres
+// Requires a separate type definition
+// `CREATE TYPE ${column.name}_enum AS ENUM (${values})`
+// `${column.name} ${column.name}_enum`
+function getPostgresEnumColumnType (column: TSchemaColumn & { type: 'enum' }) {
+    const size = getEnumSize(column.values);
+    const values = getEnumValues(column.values);
+
+    return `VARCHAR(${size}) CHECK (${column.name} IN (${values}))`;
+}
+
+// TODO: add support for sqlserver?
+function getSqlserverColumnType (column: TSchemaColumn) {
+    const columnType = column.type;
+    switch (columnType) {
+        case 'boolean': return 'BIT';
+        case 'date': return 'DATE';
+        case 'datetime': return 'DATETIME';
+        case 'enum': return `VARCHAR(${getEnumSize(column.values)})`;
+        case 'integer': return 'INT' + (column.auto ? ' IDENTITY' : '');
+        case 'string': return `VARCHAR(${column.size ?? 255})`;
+        case 'text': return 'TEXT';
+        case 'time': return 'TIME';
+        case 'uuid': return 'UNIQUEIDENTIFIER';
+    }
+
+    throw new Error(`Unknown column type: ${columnType}`);
+}
+
+function getEnumSize (values: string[]) {
+    return Math.max(...values.map(value => value.length));
+}
+
+function getEnumValues (values: string[]) {
+    return values.map(value => `'${value}'`).join(',');
 }

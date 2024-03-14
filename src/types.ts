@@ -1,12 +1,9 @@
 import { DbTable, DbTableInclude, DbTableOptions, DbTableSelect, DbTableWhere, TKey } from './index';
-import { COLUMN_TYPE } from './schema/render-column-type';
+import { TSchema, TSchemaOptions } from './schema/schema-types';
 
 export type TScheme = 'mysql' | 'postgres';
-export interface TConnectionAttrs extends TConnectionAttrOptions {
+export interface TConnectionAttrs {
     scheme: TScheme;
-}
-export interface TConnectionAttrOptions {
-    scheme: string;
     host: string;
     user: string;
     password: string;
@@ -15,7 +12,7 @@ export interface TConnectionAttrOptions {
 }
 
 export interface TOptions {
-    connection: string | TConnectionAttrOptions;
+    connection: string | TConnectionAttrs;
     schema: TSchemaOptions;
     connectionLimit?: number;
 }
@@ -100,72 +97,6 @@ export type TDestroyOptions<T extends TKey> = {
 export type TDestroyManyOptions<T extends TKey> = TDestroyOptions<T> & {
     limit?: number;
 };
-
-export interface TSchema {
-    tables: TSchemaTable[];
-}
-export interface TSchemaOptions {
-    tables: TSchemaTableOptions[];
-}
-
-export interface TReturnStrategy {
-    increment: string | undefined;
-    unique: string[] | undefined;
-}
-
-export interface TSchemaTable {
-    name: TKey;
-    columns: TSchemaColumn[];
-    indexes: TSchemaIndex[];
-    foreignKeys: TSchemaForeignKey[];
-    relations: TRelation[];
-    returnStrategy: TReturnStrategy;
-}
-export interface TSchemaTableOptions {
-    name: string;
-    columns?: TSchemaColumn[];
-    indexes?: TSchemaIndex[];
-    foreignKeys?: TSchemaForeignKey[];
-}
-
-export interface TSchemaColumn {
-    name: string;
-    type: COLUMN_TYPE;
-    size?: number;
-    errata?: string;
-    default?: () => any;
-    nullable: boolean;
-    unsigned: boolean;
-    increment: boolean;
-}
-
-export type TSchemaIndexType = 'PRIMARY KEY' | 'INDEX' | 'UNIQUE' | 'FULLTEXT';
-export type TSchemaForeignKeyType = 'RESTRICT' | 'CASCADE' | 'NO ACTION' | 'SET NULL' | 'SET DEFAULT';
-
-export interface TSchemaIndex {
-    name: string;
-    columns: string[];
-    type: TSchemaIndexType;
-}
-
-export interface TSchemaForeignKey {
-    name: string;
-    columns: string[];
-    ids: string[];
-    table: TKey;
-    displayTable: string;
-    onDelete: TSchemaForeignKeyType;
-    onUpdate: TSchemaForeignKeyType;
-}
-
-export interface TRelation {
-    table: TKey;
-    ids: string[];
-    columns: string[];
-    displayTable: string;
-    singular: boolean;
-    cascade: boolean;
-}
 
 export type TWhereModifier<T> = T | TWhereModifierIn<T>;
 export type TWhereModifierIn<T> = {

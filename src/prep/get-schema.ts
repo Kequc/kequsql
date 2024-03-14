@@ -1,11 +1,15 @@
 import { arraysMatch, deepFreeze, getDisplayTable } from '../helpers';
 import { TKey } from '../index';
-import { TOptions, TRelation, TReturnStrategy, TSchema, TSchemaForeignKey, TSchemaIndex, TSchemaTable, TSchemaTableOptions } from '../types';
+import { TOptions } from '../types';
+import { TSchema, TSchemaForeignKey, TSchemaIndex, TSchemaTable, TSchemaTableOptions, TRelation, TReturnStrategy } from '../schema/schema-types';
 import validateSchema from '../schema/validate-schema';
+import { getColumns, getIds } from '../schema/schema-parser';
 
 export default function getSchema ({ schema }: TOptions): TSchema {
+    let index = 0;
     const tables: TSchemaTable[] = schema.tables.map((table) => ({
         name: table.name as TKey,
+        abbr: `t${index++}`,
         columns: table.columns ?? [],
         indexes: getIndexes(table),
         foreignKeys: getForeignKeys(table),
@@ -21,15 +25,15 @@ function getIndexes (table: TSchemaTableOptions): TSchemaIndex[] {
     const foreignKeys = getForeignKeys(table);
     const indexes = (table.indexes ?? []).map(index => ({
         ...index,
-        name: index.type === 'PRIMARY KEY' ? 'PRIMARY' : `${table.name}_${index.columns.join('_')}_idx`
+        name: index.type === 'primary' ? 'PRIMARY' : `${table.name}_${getColumns(index.column).join('_')}_idx`
     }));
     const fkIndexes: TSchemaIndex[] = foreignKeys
         // ensure that the x foreign key columns match the index's first x columns
-        .filter(fk => !indexes.some(index => fk.columns.every((col, i) => col === index.columns[i])))
+        .filter(fk => !indexes.some(index => getColumns(fk.column).every((col, i) => col === getColumns(index.column)[i])))
         .map(fk => ({
-            name: `${table.name}_${fk.columns.join('_')}_idx`,
-            type: 'INDEX',
-            columns: fk.columns,
+            name: `${table.name}_${getColumns(fk.column).join('_')}_idx`,
+            type: 'index',
+            column: fk.column,
         }));
 
     return [...indexes, ...fkIndexes];
@@ -38,7 +42,7 @@ function getIndexes (table: TSchemaTableOptions): TSchemaIndex[] {
 function getForeignKeys (table: TSchemaTableOptions): TSchemaForeignKey[] {
     return (table.foreignKeys ?? []).map(fk => ({
         ...fk,
-        name: `${table.name}_${fk.columns.join('_')}_${fk.table}_${fk.ids.join('_')}_fk`
+        name: `${table.name}_${getColumns(fk.column).join('_')}_${fk.table}_${getIds(fk.id).join('_')}_fk`
     }));
 }
 
@@ -48,12 +52,12 @@ function getRelations (tables: TSchemaTableOptions[], name: TKey): TRelation[] {
 
     for (const foreignKey of parentTable?.foreignKeys ?? []) {
         result.push({
-            columns: foreignKey.columns,
-            ids: foreignKey.ids,
+            columns: getColumns(foreignKey.column),
+            ids: getIds(foreignKey.id),
             table: foreignKey.table,
             displayTable: getDisplayTable(foreignKey.table, true),
             singular: true,
-            cascade: foreignKey.onDelete === 'CASCADE'
+            cascade: foreignKey.onDelete === 'cascade'
         });
     }
 
@@ -62,8 +66,8 @@ function getRelations (tables: TSchemaTableOptions[], name: TKey): TRelation[] {
             if (name !== foreignKey.table) continue;
             const singular = calcSingular(table, foreignKey);
             result.push({
-                columns: foreignKey.ids,
-                ids: foreignKey.columns,
+                columns: getIds(foreignKey.id),
+                ids: getColumns(foreignKey.column),
                 table: table.name as TKey,
                 displayTable: getDisplayTable(table.name, singular),
                 singular,
@@ -78,20 +82,20 @@ function getRelations (tables: TSchemaTableOptions[], name: TKey): TRelation[] {
 }
 
 function calcSingular (table: TSchemaTableOptions, foreignKey: TSchemaForeignKey) {
-    const relevant = (table.indexes ?? []).filter(index => index.type === 'UNIQUE');
+    const relevant = (table.indexes ?? []).filter(index => index.type === 'unique');
     if (relevant.length < 1) return false;
 
-    return relevant.some(index => arraysMatch(index.columns, foreignKey.columns));
+    return relevant.some(index => arraysMatch(getColumns(index.column), getColumns(foreignKey.column)));
 }
 
 function getReturnStrategy (table: TSchemaTableOptions): TReturnStrategy {
-    const increment = table.columns?.find(column => column.increment)?.name;
-    const primary = findIndex(table, 'PRIMARY KEY')?.columns;
-    const unique = findIndex(table, 'UNIQUE')?.columns;
+    const increment = table.columns?.find(column => column.type === 'integer' && column.auto)?.name;
+    const primary = findIndex(table, 'primary')?.column;
+    const unique = findIndex(table, 'unique')?.column;
 
     return {
         increment,
-        unique: primary ?? unique
+        unique: primary ? getColumns(primary) : unique ? getColumns(unique) : undefined,
     };
 }
 
@@ -99,8 +103,8 @@ function findIndex (table: TSchemaTableOptions, type: string): TSchemaIndex | un
     const indexes = table.indexes?.filter(index => index.type === type) ?? [];
 
     return indexes.find(index => {
-        const columns = (table.columns ?? []).filter(column => index.columns.includes(column.name));
-        if (index.columns.length !== columns.length) return false;
+        const columns = (table.columns ?? []).filter(column => getColumns(index.column).includes(column.name));
+        if (getColumns(index.column).length !== columns.length) return false;
         return columns.every(column => !column.nullable);
     });
 }

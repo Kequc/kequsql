@@ -1,18 +1,18 @@
-import { createTable, column, index, foreignKey } from '../../src/index';
+import { createTable } from '../../src/index';
 
 export default createTable({
     name: 'Address',
     columns: [
-        column.uuid     ('id', { auto: true }),
-        column.uuid     ('userId', { nullable: false }),
-        column.string   ('name', { nullable: false }),
-        column.string   ('city', { nullable: false }),
+        { name: 'id', type: 'uuid', auto: true },
+        { name: 'userId', type: 'uuid' },
+        { name: 'name', type: 'string' },
+        { name: 'city', type: 'string' },
     ],
     indexes: [
-        index.primary   ('id'),
-        index.unique    ('userId'),
+        { type: 'primary', column: 'id' },
+        { type: 'unique', column: 'userId' },
     ],
     foreignKeys: [
-        foreignKey.cascade  ('User', 'id', 'userId'),
+        { table: 'User', id: 'id', column: 'userId', onUpdateDelete: 'cascade' },
     ],
 });

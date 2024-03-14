@@ -1,17 +1,17 @@
-import { createTable, column, index, foreignKey } from '../../src/index';
+import { createTable } from '../../src/index';
 
 export default createTable({
     name: 'Pet',
     columns: [
-        column.uuid     ('id', { auto: true }),
-        column.uuid     ('userId', { nullable: false }),
-        column.string   ('name', { nullable: false }),
-        column.enum     ('type', ['dog', 'cat', 'fish'], { nullable: false }),
+        { name: 'id', type: 'uuid', auto: true },
+        { name: 'userId', type: 'uuid' },
+        { name: 'name', type: 'string' },
+        { name: 'type', type: 'enum', values: ['dog', 'cat', 'fish'] },
     ],
     indexes: [
-        index.primary   ('id'),
+        { type: 'primary', column: 'id' },
     ],
     foreignKeys: [
-        foreignKey.cascade  ('User', 'id', 'userId'),
-    ]
+        { table: 'User', id: 'id', column: 'userId', onUpdateDelete: 'cascade' },
+    ],
 });

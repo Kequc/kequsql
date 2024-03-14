@@ -1,4 +1,4 @@
-import { TConnectionAttrOptions, TConnectionAttrs, TScheme } from '../types';
+import { TConnectionAttrs, TScheme } from '../types';
 
 const CONNECTION_STRING = new RegExp(
     "^\\s*" + // Optional whitespace padding at the beginning of the line
@@ -10,7 +10,7 @@ const CONNECTION_STRING = new RegExp(
     "\\s*$", // Optional whitespace padding at the end of the line
     "gi");
 
-export default function getConnectionAttrs (connection: string | TConnectionAttrOptions): TConnectionAttrs {
+export default function getConnectionAttrs (connection: string | TConnectionAttrs): TConnectionAttrs {
     if (typeof connection === 'string') {
 		if (!connection.includes("://")) {
 			throw new Error(`No scheme found: ${connection}`);
@@ -45,10 +45,17 @@ export default function getConnectionAttrs (connection: string | TConnectionAttr
 
 function parseScheme (scheme: string): TScheme {
     switch (scheme) {
-        case 'mariadb': return 'mysql';
-        case 'mysql': return 'mysql';
-        case 'postgresql': return 'postgres';
-        case 'postgres': return 'postgres';
+        case 'mariadb':
+        case 'mysql':
+        case 'mysql2':
+        case 'mysqlx':
+        case 'percona':
+            return 'mysql';
+        case 'postgresql':
+        case 'postgres':
+        case 'pg':
+        case 'cockroachdb':
+            return 'postgres';
         default: throw new Error(`Unknown scheme: ${scheme}`);
     }
 }

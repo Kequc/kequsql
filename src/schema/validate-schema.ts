@@ -1,54 +1,75 @@
-import { TSchemaColumn, TSchemaIndex, TSchemaTable } from '../index';
+import { getColumns, getIds } from './schema-parser';
+import { TSchemaColumn, TSchemaIndex, TSchemaOptions, TSchemaTable, TSchemaTableOptions } from './schema-types';
 
 export default function validateSchema (tables: TSchemaTable[]): void {
     for (const table of tables) {
         let primary: TSchemaIndex | undefined = undefined;
         let increment: TSchemaColumn | undefined = undefined;
-        const uniques: TSchemaIndex[] = table.indexes.filter(index => index.type === 'UNIQUE');
+        const uniques: TSchemaIndex[] = table.indexes.filter(index => index.type === 'unique');
 
         for (const index of table.indexes) {
-            if (index.columns.length === 0) {
+            const columns = getColumns(index.column);
+
+            if (columns.length === 0) {
                 throw new Error(`Index must have at least one column on table ${table.name}`);
             }
 
-            if (index.columns.some(column => table.columns.every(col => col.name !== column))) {
-                throw new Error(`Index (${index.columns.join(', ')}) does not exist on table ${table.name}`);
+            if (columns.some(column => table.columns.every(col => col.name !== column))) {
+                throw new Error(`Index (${columns.join(', ')}) does not exist on table ${table.name}`);
             }
 
-            if (index.type === 'PRIMARY KEY') {
+            if (index.type === 'primary') {
                 if (primary) throw new Error(`Multiple primary keys defined on table ${table.name}`);
                 primary = index;
             }
         }
 
         for (const column of table.columns) {
-            if (column.increment) {
+            if (column.type === 'integer' && column.auto) {
                 if (increment) throw new Error(`Multiple increment columns defined on table ${table.name}`);
                 increment = column;
 
-                if (!table.indexes.some(index => index.columns[0] === column.name)) {
+                if (!table.indexes.some(index => getColumns(index.column)[0] === column.name)) {
                     throw new Error(`Increment column must be a primary key or an index on table ${table.name}`);
                 }
             }
 
-            if (column.nullable && primary?.columns.includes(column.name)) {
+            if (column.nullable && primary && getColumns(primary.column).includes(column.name)) {
                 throw new Error(`Primary key column cannot be nullable on table ${table.name}`);
             }
         }
 
         for (const foreignKey of table.foreignKeys) {
-            if (foreignKey.columns.length === 0) throw new Error(`Foreign key must have at least one column on table ${table.name}`);
-            if (foreignKey.ids.length === 0) throw new Error(`Foreign key must have at least one id on table ${table.name}`);
+            const columns = getColumns(foreignKey.column);
+            const ids = getIds(foreignKey.id);
 
-            if (foreignKey.columns.length !== foreignKey.ids.length) {
+            if (!tables.some(table => table.name === foreignKey.table)) {
+                throw new Error(`Foreign key references non-existent table ${foreignKey.table}`);
+            }
+            if (table.name === foreignKey.table) {
+                throw new Error(`Foreign key references itself on table ${table.name}`);
+            }
+
+            if (columns.length === 0) throw new Error(`Foreign key must have at least one column on table ${table.name}`);
+            if (ids.length === 0) throw new Error(`Foreign key must have at least one id on table ${table.name}`);
+
+            if (columns.length !== ids.length) {
                 throw new Error(`Foreign key columns and ids must have the same length on table ${table.name}`);
             }
 
-            if (foreignKey.columns.some(column => table.columns.every(col => col.name !== column))) {
-                throw new Error(`Foreign key (${foreignKey.columns.join(', ')}) does not exist on table ${table.name}`);
+            if (columns.some(column => table.columns.every(col => col.name !== column))) {
+                throw new Error(`Foreign key (${columns.join(', ')}) does not exist on table ${table.name}`);
             }
         }
 
         if (!primary && !increment && uniques.length < 1) throw new Error(`Unique index, increment, or primary key must exist on table ${table.name}`);
     }
+}
+
+export function createSchema (schema: TSchemaOptions): TSchemaOptions {
+    return schema;
+}
+
+export function createTable (table: TSchemaTableOptions): TSchemaTableOptions {
+    return table;
 }

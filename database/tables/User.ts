@@ -1,12 +1,12 @@
-import { createTable, column, index } from '../../src/index';
+import { createTable } from '../../src/index';
 
 export default createTable({
     name: 'User',
     columns: [
-        column.uuid     ('id', { auto: true }),
-        column.string   ('name', { nullable: false }),
+        { name: 'id', type: 'uuid', auto: true },
+        { name: 'name', type: 'string' },
     ],
     indexes: [
-        index.primary   ('id'),
-    ]
+        { type: 'primary', column: 'id' },
+    ],
 });

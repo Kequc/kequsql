@@ -4,8 +4,8 @@ import mysqlConnection from './mysql/connection';
 import postgresConnection from './postgres/connection';
 import mysqlSql from './mysql/sql';
 import postgresSql from './postgres/sql';
-import { TInternal, TOptions, TSchemaTable, TScheme, TStrategySql } from '../types';
-import getConnectionAttrs from './get-connection-attrs';
+import { TConnectionAttrs, TInternal, TOptions, TSchemaTable, TScheme, TStrategySql } from '../types';
+import getConnectionAttrs from '../prep/get-connection-attrs';
 
 const SCHEMES = {
     mysql: {
@@ -26,12 +26,10 @@ export function checkTables (internal: TInternal) {
     return SCHEMES[scheme].check(internal) as Promise<TSchemaTable[]>;
 }
 
-export function getStrategyConnection (options: TOptions) {
-    const connectionAttrs = getConnectionAttrs(options.connection);
-    const { scheme, database } = connectionAttrs;
+export function getStrategyConnection (connectionAttrs: TConnectionAttrs) {
+    const scheme = connectionAttrs.scheme;
     if (!(scheme in SCHEMES)) throw new Error(`No strategy found for: ${scheme}`);
-    const connection = SCHEMES[scheme].connection(connectionAttrs);
-    return { ...connection, scheme, database };
+    return SCHEMES[scheme].connection(connectionAttrs);
 }
 
 export function getStrategySql (scheme: TScheme) {
