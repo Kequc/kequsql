@@ -1,11 +1,11 @@
 import { TKey } from '../../project/private-types';
-import { TDestroyManyOptions, TSchemaTable, TStrategySql } from '../../project/types';
+import { TDestroyManyOptions, TSchemaTable, TSchemeSql } from '../../project/types';
 import { renderSql } from '../util/helpers';
 import { renderWhere } from './util/render-where';
-import { renderLimit, renderOrder } from './util/select-helpers';
+import { renderLimit, renderOrder } from './find/helpers';
 
 export default function prepareDestroy<T extends TKey> (
-    sql: TStrategySql,
+    sql: TSchemeSql,
     table: TSchemaTable,
     options: TDestroyManyOptions<T>
 ) {

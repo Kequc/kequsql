@@ -1,11 +1,11 @@
 import { TKey, TTable } from '../../project/private-types';
-import { TCreateManyOptions, TRelation, TSchemaColumn, TSchemaTable, TStrategySql } from '../../project/types';
+import { TCreateManyOptions, TRelation, TSchemaColumn, TSchemaTable, TSchemeSql } from '../../project/types';
 import { renderSql } from '../util/helpers';
 
 const BATCH_SIZE = 200;
 
 export default function prepareCreate<T extends TKey> (
-    sql: TStrategySql,
+    sql: TSchemeSql,
     table: TSchemaTable,
     options: TCreateManyOptions<T>
 ) {

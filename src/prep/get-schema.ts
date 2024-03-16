@@ -6,16 +6,18 @@ import validateSchema from '../schema/validate-schema';
 import { getColumns, getIds } from '../schema/schema-parser';
 
 export default function getSchema ({ schema }: TOptions): TSchema {
-    let index = 0;
     const tables: TSchemaTable[] = schema.tables.map((table) => ({
         name: table.name as TKey,
-        abbr: `t${index++}`,
         columns: table.columns ?? [],
         indexes: getIndexes(table),
         foreignKeys: getForeignKeys(table),
-        relations: getRelations(schema.tables, table.name as TKey),
+        relations: [],
         returnStrategy: getReturnStrategy(table)
     }));
+
+    for (const table of tables) {
+        table.relations = getRelations(tables, table.name as TKey);
+    }
 
     validateSchema(tables);
     return deepFreeze({ tables });
@@ -46,32 +48,30 @@ function getForeignKeys (table: TSchemaTableOptions): TSchemaForeignKey[] {
     }));
 }
 
-function getRelations (tables: TSchemaTableOptions[], name: TKey): TRelation[] {
+function getRelations (tables: TSchemaTable[], name: TKey): TRelation[] {
     const result: TRelation[] = [];
     const parentTable = tables.find(table => table.name === name);
 
-    for (const foreignKey of parentTable?.foreignKeys ?? []) {
+    for (const foreignKey of parentTable.foreignKeys) {
         result.push({
             columns: getColumns(foreignKey.column),
             ids: getIds(foreignKey.id),
-            table: foreignKey.table,
+            table: tables.find(table => table.name === foreignKey.table),
             displayTable: getDisplayTable(foreignKey.table, true),
-            singular: true,
-            cascade: foreignKey.onDelete === 'cascade'
+            singular: true
         });
     }
 
     for (const table of tables) {
-        for (const foreignKey of table.foreignKeys ?? []) {
+        for (const foreignKey of table.foreignKeys) {
             if (name !== foreignKey.table) continue;
             const singular = calcSingular(table, foreignKey);
             result.push({
                 columns: getIds(foreignKey.id),
                 ids: getColumns(foreignKey.column),
-                table: table.name as TKey,
+                table,
                 displayTable: getDisplayTable(table.name, singular),
-                singular,
-                cascade: false
+                singular
             });
         }
     }

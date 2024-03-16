@@ -66,7 +66,6 @@ export interface TSchemaOptions {
 
 export interface TSchemaTable {
     name: string;
-    abbr: string;
     columns: TSchemaColumn[];
     indexes: TSchemaIndex[];
     foreignKeys: TSchemaForeignKey[];
@@ -81,12 +80,11 @@ export interface TSchemaTableOptions {
 }
 
 export interface TRelation {
-    table: string;
+    table: TSchemaTable;
     ids: string[];
     columns: string[];
     displayTable: string;
     singular: boolean;
-    cascade: boolean;
 }
 
 export interface TReturnStrategy {

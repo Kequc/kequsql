@@ -1,8 +1,8 @@
-import { TTable } from '../../project/private-types';
-import { TWhereOptions } from '../../project/types';
-import { isPojo } from '../util/helpers';
+import { TWhereOptions } from '../../types';
+import { DbTable, TKey } from '../../../project/types';
+import { isPojo } from '../../helpers';
 
-export default function matchesWhere (row: TTable<any>, where: TWhereOptions<any> = {}) {
+export default function matchesWhere<T extends TKey> (row: DbTable[T], where: TWhereOptions<T> = {}) {
     for (const key of Object.keys(where)) {
         if (key === 'or') {
             const wheres = where[key] as TWhereOptions<any>[];
@@ -10,10 +10,10 @@ export default function matchesWhere (row: TTable<any>, where: TWhereOptions<any
         } else if (key === 'and') {
             const wheres = where[key] as TWhereOptions<any>[];
             if (!wheres.every(subWhere => matchesWhere(row, subWhere))) return false;
-        } else if (isPojo(where[key])) {
-            if (!matchesWhereOperator(row[key], key, where[key])) return false;
+        } else if (isPojo(where[key as keyof TWhereOptions<T>])) {
+            if (!matchesWhereOperator(row[key as keyof DbTable[T]], key, where[key as keyof TWhereOptions<T>])) return false;
         } else {
-            if (row[key] !== where[key]) return false;
+            if (row[key as keyof DbTable[T]] !== where[key as keyof TWhereOptions<T>]) return false;
         }
     }
 

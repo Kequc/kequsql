@@ -1,10 +1,10 @@
 import { TKey, TTable } from '../../project/private-types';
-import { TSchemaColumn, TSchemaTable, TStrategySql, TUpdateOptions } from '../../project/types';
+import { TSchemaColumn, TSchemaTable, TSchemeSql, TUpdateOptions } from '../../project/types';
 import { renderSql } from '../util/helpers';
 import { renderWhere } from './util/render-where';
 
 export default function prepareUpdate<T extends TKey> (
-    sql: TStrategySql,
+    sql: TSchemeSql,
     table: TSchemaTable,
     options: TUpdateOptions<T>
 ) {
@@ -36,7 +36,7 @@ function filterColumns (columns: TSchemaColumn[], data: Partial<TTable<any>>) {
     return columns.filter(column => data[column.name] !== undefined);
 }
 
-function renderSet (sql: TStrategySql, columns: TSchemaColumn[], data: Partial<TTable<any>>) {
+function renderSet (sql: TSchemeSql, columns: TSchemaColumn[], data: Partial<TTable<any>>) {
     const setSql = columns.map(column => `${sql.q(column.name)} = ?`).join(', ');
     const values = columns.map(column => data[column.name]);
 

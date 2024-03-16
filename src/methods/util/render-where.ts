@@ -1,9 +1,9 @@
-import { TSchemaTable, TStrategySql, TWhereOptions } from '../../../project/types';
+import { TSchemaTable, TSchemeSql, TWhereOptions } from '../../../project/types';
 import { isPojo } from '../../util/helpers';
 
 const OPERATOR_KEYS = ['or', 'and'];
 
-export function renderWhere (sql: TStrategySql, table: TSchemaTable, where?: TWhereOptions<any>): [string, unknown[]] {
+export function renderWhere (sql: TSchemeSql, table: TSchemaTable, where?: TWhereOptions<any>): [string, unknown[]] {
     if (where === undefined) return ['', []];
 
     const result: string[] = [];
@@ -55,7 +55,7 @@ export function renderWhere (sql: TStrategySql, table: TSchemaTable, where?: TWh
 }
 
 function mapPairs (
-    sql: TStrategySql,
+    sql: TSchemeSql,
     table: TSchemaTable,
     wheres: TWhereOptions<any>[],
     operator: string
@@ -72,7 +72,7 @@ function mapPairs (
     return [`(${result.join(operator)})`, values];
 }
 
-function withOperator (sql: TStrategySql, operator: string, name: string) {
+function withOperator (sql: TSchemeSql, operator: string, name: string) {
     switch (operator) {
         case 'in': return `${sql.q(name)} IN (?)`;
         case 'notIn': return `${sql.q(name)} NOT IN (?)`;

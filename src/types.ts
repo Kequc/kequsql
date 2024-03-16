@@ -20,7 +20,7 @@ export interface TOptions {
 export type TQuery = <T = unknown> (sql: string, values?: unknown[], silent?: boolean) => Promise<T>;
 export type TTransaction = <T = unknown> (cb: (query: TQuery) => Promise<T>) => Promise<T>;
 
-export type TStrategySql = {
+export type TSchemeSql = {
     q: (value: string) => string;
 };
 export type TStrategyConnection = {
@@ -31,7 +31,7 @@ export type TStrategyConnection = {
 export type TKequsql = TInternal & TProjTables;
 export type TInternal = TStrategyConnection & {
     info: { scheme: TScheme; database: string; }
-    sql: TStrategySql;
+    sql: TSchemeSql;
     schema: TSchema;
     getTable (name: string): TProjTable<any>;
 };
@@ -121,6 +121,7 @@ export type TAscDesc = 'asc' | 'desc';
 export type TOrderOptions<T extends TKey> = Partial<{ [name in keyof DbTableSelect[T]]: TAscDesc }>;
 export type TSelectOptions<T extends TKey> = DbTableSelect[T];
 export type TIncludeOptions<T extends TKey> = DbTableInclude[T];
+export type TRaw = Record<string, unknown>;
 
 export type TWaiting<T extends TKey> = TFindManyOptions<T> & {
     query: TQuery;

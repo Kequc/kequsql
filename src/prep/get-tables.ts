@@ -1,10 +1,11 @@
 import { DbTable, TKey } from '../index';
 import { TInternal, TProjTable, TProjTables, TCreateManyOptions, TCreateOptions, TDestroyManyOptions, TDestroyOptions, TFindManyOptions, TFindOptions, TUpdateManyOptions, TUpdateOptions } from '../types';
+import { TSchemaTable } from '../schema/schema-types';
+
 import performCreate from '../methods/perform-create';
 import performDestroy from '../methods/perform-destroy';
 import performUpdate from '../methods/perform-update';
-import queue from '../select-engine/queue';
-import { TSchemaTable } from '../schema/schema-types';
+import performFind from '../methods/find/perform-find';
 
 export default function getTables (db: TInternal): TProjTables {
     const result: Record<string, TProjTable<any>> = {};
@@ -32,14 +33,14 @@ function getTable<T extends TKey> (db: TInternal, table: TSchemaTable): TProjTab
 
 function buildFind<T extends TKey> (db: TInternal, table: TSchemaTable) {
     return async function find (options: TFindOptions<T> = {}): Promise<DbTable[T] | undefined> {
-        const result = await queue<T>(db, db.query, table.name, { ...options, limit: 1 });
+        const result = await performFind<T>(db, db.query, table, { ...options, limit: 1 });
         return result[0];
     };
 }
 
 function buildFindMany<T extends TKey> (db: TInternal, table: TSchemaTable) {
     return async function findMany (options: TFindManyOptions<T> = {}): Promise<DbTable[T][]> {
-        return await queue<T>(db, db.query, table.name, options);
+        return await performFind<T>(db, db.query, table, options);
     };
 }
 

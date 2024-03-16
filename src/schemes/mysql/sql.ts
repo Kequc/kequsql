@@ -1,6 +1,6 @@
-import { TStrategySql } from '../../types';
+import { TSchemeSql } from '../../types';
 
-const sql: TStrategySql = {
+const sql: TSchemeSql = {
     q (value: string) {
         return `\`${value}\``;
     }
