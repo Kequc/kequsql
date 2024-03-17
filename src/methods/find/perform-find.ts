@@ -1,9 +1,9 @@
-import { TFindManyOptions, TInternal, TQuery, TRaw } from '../../types';
+import { TFindManyOptions, TInternal, TQuery, TRaw, TStrategy } from '../../types';
 import { DbTable, TKey } from '../../../project/types';
 import { TSchemaTable } from '../../schema/schema-types';
 import prepareFind from './prepare-find';
-import { TFindStrategy, drill } from './helpers';
 import performFindRelations from './perform-find-relations';
+import { drill } from '../../helpers';
 
 export default async function performFind<T extends TKey> (
     db: TInternal,
@@ -19,7 +19,7 @@ export default async function performFind<T extends TKey> (
     return await performFindRelations(db, query, options, strategy, rows);
 }
 
-function reconstructRows<T extends TKey> (raw: TRaw[], strategy: TFindStrategy[]): DbTable[T][] {
+function reconstructRows<T extends TKey> (raw: TRaw[], strategy: TStrategy[]): DbTable[T][] {
     return raw.map(row => {
         const result = buildRow(row, strategy, 0);
 
@@ -33,7 +33,7 @@ function reconstructRows<T extends TKey> (raw: TRaw[], strategy: TFindStrategy[]
     });
 }
 
-function buildRow (row: TRaw, strategy: TFindStrategy[], index: number): TRaw {
+function buildRow (row: TRaw, strategy: TStrategy[], index: number): TRaw {
     const result: TRaw = {};
     const { columns } = strategy[index];
 

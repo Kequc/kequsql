@@ -1,4 +1,4 @@
-import { TConnectionAttrs, TOptions, TQuery, TStrategyConnection } from '../../types';
+import { TConnectionAttrs, TOptions, TQuery, TSchemeConnection } from '../../types';
 import devWrapper from "../dev-wrapper";
 import queryWrapper from '../query-wrapper';
 
@@ -10,7 +10,7 @@ function loadModule () {
     }
 }
 
-export default function postgresStrategy (conn: TConnectionAttrs, options?: TOptions): TStrategyConnection {
+export default function postgresStrategy (conn: TConnectionAttrs, options?: TOptions): TSchemeConnection {
     const pg = loadModule();
     const pool = devWrapper('postgresStrategy', () => new pg.Pool({
         user: conn.user,

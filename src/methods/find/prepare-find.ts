@@ -1,9 +1,9 @@
 import { renderSql } from '../../helpers';
 import { TKey } from '../../../project/types';
 import { TRelation, TSchemaColumn, TSchemaTable } from '../../schema/schema-types';
-import { TFindManyOptions, TFindOptions, TInternal, TWhereOptions } from '../../types';
+import { TFindManyOptions, TFindOptions, TInternal, TStrategy, TWhereOptions } from '../../types';
 import { renderWhere } from '../util/render-where';
-import { TFindStrategy, renderFrom, renderLimit, renderOrderBy, renderSelect } from './helpers';
+import { renderFrom, renderLimit, renderOrderBy, renderSelect } from './helpers';
 
 export default function prepareFind<T extends TKey> (
     db: TInternal,
@@ -11,11 +11,11 @@ export default function prepareFind<T extends TKey> (
     options: TFindManyOptions<T>,
 ) {
     const strategy = calcStrategy(table, options, []);
-    const [whereSql, values] = renderWhere(db.sql, table, options.where);
+    const [whereSql, values] = renderWhere(db.sql, strategy, options.where);
 
     const rendered = renderSql(
         `SELECT ${renderSelect(db.sql, strategy)}`,
-        ...renderFrom(db.sql, strategy, table.relations),
+        ...renderFrom(db.sql, strategy),
         whereSql ? `WHERE ${whereSql}` : '',
         renderOrderBy(db.sql, options.orderBy),
         renderLimit(options),
@@ -32,11 +32,13 @@ function calcStrategy<T extends TKey> (
     table: TSchemaTable,
     options: Pick<TFindOptions<T>, 'include' | 'select' | 'where'>,
     breadcrumb: string[],
-): TFindStrategy[] {
+    parentTable?: TSchemaTable,
+): TStrategy[] {
     const joins = filterJoinRelations(table, options).map(join => calcStrategy(
         join.table,
         getJoinOptions(options, join.displayTable),
         [...breadcrumb, join.displayTable],
+        table,
     )).flat();
 
     const relationKeys = Object.keys(options.include ?? {});
@@ -47,6 +49,7 @@ function calcStrategy<T extends TKey> (
         breadcrumb,
         columns: filterColumns(table, options, relations),
         relations,
+        parentTable,
     }, ...joins];
 }
 
@@ -76,10 +79,9 @@ function filterColumns<T extends TKey> (
 
     const selectColumns = Object.keys(options.select);
     const relationColumns = relations.map(({ columns }) => columns).flat();
-    const whereColumns = Object.keys(options.where ?? {});
 
     return table.columns.filter(column => {
-        return selectColumns.includes(column.name) || relationColumns.includes(column.name) || whereColumns.includes(column.name);
+        return selectColumns.includes(column.name) || relationColumns.includes(column.name);
     });
 }
 

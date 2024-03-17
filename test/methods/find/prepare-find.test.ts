@@ -1,0 +1,235 @@
+import 'kequtest';
+import assert from 'assert';
+import prepareFind from '../../../src/methods/find/prepare-find';
+import { TSchemaTableOptions } from '../../../src/schema/schema-types';
+import { TInternal } from '../../../src/types';
+import getSchema from '../../../src/prep/get-schema';
+
+function generateInternal (tables: TSchemaTableOptions[] = []): TInternal {
+    return {
+        query: util.spy(),
+        transaction: util.spy(),
+        info: { scheme: 'mysql', database: 'database' },
+        sql: { q: util.spy(value => `'${value}'`) },
+        schema: getSchema({
+            connection: 'connection',
+            schema: { tables },
+        }),
+        getTable: util.spy(),
+    };
+}
+
+function s(...parts: string[]) {
+    return parts.join('\n') + ';';
+}
+
+it('generates a simple select statement', () => {
+    const db = generateInternal([{
+        name: 'User',
+        columns: [{ name: 'id', type: 'integer', auto: true }],
+        indexes: [{ type: 'primary', column: 'id' }],
+    }]);
+    const tables = db.schema.tables;
+    const options: any = {};
+    const result = prepareFind(db, tables[0], options);
+
+    assert.strictEqual(result.rendered, s(
+        "SELECT t0.'id' t0_0",
+        "FROM 'User' t0",
+    ));
+    assert.deepStrictEqual(result.values, []);
+    assert.deepStrictEqual(result.strategy, [{
+        table: tables[0],
+        breadcrumb: [],
+        columns: tables[0].columns,
+        relations: [],
+        parentTable: undefined,
+    }]);
+});
+
+it('generates a select statement with where clause', () => {
+    const db = generateInternal([{
+        name: 'User',
+        columns: [{ name: 'id', type: 'integer', auto: true }],
+        indexes: [{ type: 'primary', column: 'id' }],
+    }]);
+    const tables = db.schema.tables;
+    const options: any = { where: { id: 1 } };
+    const result = prepareFind(db, tables[0], options);
+
+    assert.strictEqual(result.rendered, s(
+        "SELECT t0.'id' t0_0",
+        "FROM 'User' t0",
+        "WHERE t0.'id' = ?",
+    ));
+    assert.deepStrictEqual(result.values, [1]);
+    assert.deepStrictEqual(result.strategy, [{
+        table: tables[0],
+        breadcrumb: [],
+        columns: tables[0].columns,
+        relations: [],
+        parentTable: undefined,
+    }]);
+});
+
+it('generates a select statement with where clause in a joining table', () => {
+    const db = generateInternal([{
+        name: 'User',
+        columns: [{ name: 'id', type: 'integer', auto: true }],
+        indexes: [{ type: 'primary', column: 'id' }],
+    }, {
+        name: 'Post',
+        columns: [
+            { name: 'id', type: 'integer', auto: true },
+            { name: 'userId', type: 'integer' },
+        ],
+        indexes: [{ type: 'primary', column: 'id' }],
+        foreignKeys: [{ table: 'User', id: 'id', column: 'userId' }],
+    }]);
+    const tables = db.schema.tables;
+    const options: any = { where: { posts: { id: 1 } } };
+    const result = prepareFind(db, tables[0], options);
+
+    assert.strictEqual(result.rendered, s(
+        "SELECT t0.'id' t0_0",
+        "FROM 'User' t0",
+        "JOIN 'Post' t1",
+        "ON t0.'id' = t1.'userId'",
+        "WHERE t1.'id' = ?",
+    ));
+    assert.deepStrictEqual(result.values, [1]);
+});
+
+it('generates a select statement with where clause in a joining table and a where clause in the main table', () => {
+    const db = generateInternal([{
+        name: 'User',
+        columns: [{ name: 'id', type: 'integer', auto: true }],
+        indexes: [{ type: 'primary', column: 'id' }],
+    }, {
+        name: 'Post',
+        columns: [
+            { name: 'id', type: 'integer', auto: true },
+            { name: 'userId', type: 'integer' },
+        ],
+        indexes: [{ type: 'primary', column: 'id' }],
+        foreignKeys: [{ table: 'User', id: 'id', column: 'userId' }],
+    }]);
+    const tables = db.schema.tables;
+    const options: any = { where: { id: 1, posts: { id: 2 } } };
+    const result = prepareFind(db, tables[0], options);
+
+    assert.strictEqual(result.rendered, s(
+        "SELECT t0.'id' t0_0",
+        "FROM 'User' t0",
+        "JOIN 'Post' t1",
+        "ON t0.'id' = t1.'userId'",
+        "WHERE t0.'id' = ? AND t1.'id' = ?",
+    ));
+    assert.deepStrictEqual(result.values, [1, 2]);
+});
+
+it('generates a select statement which selects from two tables', () => {
+    const db = generateInternal([{
+        name: 'User',
+        columns: [{ name: 'id', type: 'integer', auto: true }],
+        indexes: [{ type: 'primary', column: 'id' }],
+    }, {
+        name: 'Address',
+        columns: [
+            { name: 'id', type: 'integer', auto: true },
+            { name: 'userId', type: 'integer' },
+        ],
+        indexes: [
+            { type: 'primary', column: 'id' },
+            { type: 'unique', column: 'userId' },
+        ],
+        foreignKeys: [{ table: 'User', id: 'id', column: 'userId' }],
+    }]);
+    const tables = db.schema.tables;
+    const options: any = { include: { address: true } };
+    const result = prepareFind(db, tables[0], options);
+
+    assert.strictEqual(result.rendered, s(
+        "SELECT t0.'id' t0_0, t1.'id' t1_0, t1.'userId' t1_1",
+        "FROM 'User' t0",
+        "JOIN 'Address' t1",
+        "ON t0.'id' = t1.'userId'",
+    ));
+    assert.deepStrictEqual(result.values, []);
+});
+
+it('generates a select statement which selects from two tables and has a where clause', () => {
+    const db = generateInternal([{
+        name: 'User',
+        columns: [{ name: 'id', type: 'integer', auto: true }],
+        indexes: [{ type: 'primary', column: 'id' }],
+    }, {
+        name: 'Address',
+        columns: [
+            { name: 'id', type: 'integer', auto: true },
+            { name: 'userId', type: 'integer' },
+        ],
+        indexes: [
+            { type: 'primary', column: 'id' },
+            { type: 'unique', column: 'userId' },
+        ],
+        foreignKeys: [{ table: 'User', id: 'id', column: 'userId' }],
+    }]);
+    const tables = db.schema.tables;
+    const options: any = { where: { id: 1 }, include: { address: true } };
+    const result = prepareFind(db, tables[0], options);
+
+    assert.strictEqual(result.rendered, s(
+        "SELECT t0.'id' t0_0, t1.'id' t1_0, t1.'userId' t1_1",
+        "FROM 'User' t0",
+        "JOIN 'Address' t1",
+        "ON t0.'id' = t1.'userId'",
+        "WHERE t0.'id' = ?",
+    ));
+    assert.deepStrictEqual(result.values, [1]);
+});
+
+it('generates a select statement which selectes from a deeply nested table', () => {
+    const db = generateInternal([{
+        name: 'User',
+        columns: [{ name: 'id', type: 'integer', auto: true }],
+        indexes: [{ type: 'primary', column: 'id' }],
+    }, {
+        name: 'Address',
+        columns: [
+            { name: 'id', type: 'integer', auto: true },
+            { name: 'userId', type: 'integer' },
+            { name: 'countryId', type: 'integer' },
+        ],
+        indexes: [
+            { type: 'primary', column: 'id' },
+            { type: 'unique', column: 'userId' },
+        ],
+        foreignKeys: [
+            { table: 'User', id: 'id', column: 'userId' },
+            { table: 'Country', id: 'id', column: 'countryId' },
+        ],
+    }, {
+        name: 'Country',
+        columns: [
+            { name: 'id', type: 'integer', auto: true },
+            { name: 'name', type: 'string' },
+        ],
+        indexes: [
+            { type: 'primary', column: 'id' },
+        ],
+    }]);
+    const tables = db.schema.tables;
+    const options: any = { include: { address: { include: { country: true } } } };
+    const result = prepareFind(db, tables[0], options);
+
+    assert.strictEqual(result.rendered, s(
+        "SELECT t0.'id' t0_0, t1.'id' t1_0, t1.'userId' t1_1, t1.'countryId' t1_2, t2.'id' t2_0, t2.'name' t2_1",
+        "FROM 'User' t0",
+        "JOIN 'Address' t1",
+        "ON t0.'id' = t1.'userId'",
+        "JOIN 'Country' t2",
+        "ON t1.'countryId' = t2.'id'",
+    ));
+    assert.deepStrictEqual(result.values, []);
+});

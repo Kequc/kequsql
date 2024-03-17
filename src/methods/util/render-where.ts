@@ -1,50 +1,61 @@
-import { TSchemaTable, TSchemeSql, TWhereOptions } from '../../../project/types';
-import { isPojo } from '../../util/helpers';
+import { TSchemeSql, TStrategy, TWhereOptions } from '../../types';
+import { dig, isPojo } from '../../helpers';
 
 const OPERATOR_KEYS = ['or', 'and'];
 
-export function renderWhere (sql: TSchemeSql, table: TSchemaTable, where?: TWhereOptions<any>): [string, unknown[]] {
+export function renderWhere (
+    sql: TSchemeSql,
+    strategy: TStrategy[],
+    where?: TWhereOptions<any>,
+): [string, unknown[]] {
     if (where === undefined) return ['', []];
 
     const result: string[] = [];
     const values: unknown[] = [];
 
-    for (const column of table.columns) {
-        const key = column.name;
-        if (where[key] === undefined) continue;
+    for (let i = 0; i < strategy.length; i++) {
+        const { table, breadcrumb } = strategy[i];
 
-        if (isPojo(where[key])) {
-            for (const [operator, value] of Object.entries(where[key])) {
-                const notArray = !Array.isArray(value) || value.length === 0;
+        for (const column of table.columns) {
+            const key = column.name;
+            const value = dig(where, [...breadcrumb, key]);
+            if (value === undefined) continue;
 
-                if (operator === 'in' && notArray) {
-                    // null condition
-                    result.push('1 = ?');
-                    values.push(0);
-                    continue;
+            if (isPojo(value)) {
+                for (const [operator, subValue] of Object.entries(value)) {
+                    const notArray = !Array.isArray(subValue) || subValue.length === 0;
+
+                    if (operator === 'in' && notArray) {
+                        // null condition
+                        result.push('1 = ?');
+                        values.push(0);
+                        continue;
+                    }
+                    if (operator === 'notIn' && notArray) {
+                        // ignore condition
+                        continue;
+                    }
+
+                    result.push(withOperator(sql, operator, column.name));
+                    if (operator === 'isNull' || operator === 'isNotNull') continue;
+                    values.push(subValue);
                 }
-                if (operator === 'notIn' && notArray) {
-                    // ignore condition
-                    continue;
-                }
-
-                result.push(withOperator(sql, operator, column.name));
-                if (operator === 'isNull' || operator === 'isNotNull') continue;
+            } else {
+                result.push(`t${i}.${sql.q(column.name)} = ?`);
                 values.push(value);
             }
-        } else {
-            result.push(`${sql.q(column.name)} = ?`);
-            values.push(where[key]);
         }
-    }
 
-    for (const key of OPERATOR_KEYS) {
-        if (Array.isArray(where[key]) && where[key].every(isPojo)) {
-            const wheres = where[key] as TWhereOptions<any>[];
-            const operator = key === 'or' ? ' OR ' : ' AND ';
-            const [r, v] = mapPairs(sql, table, wheres, operator);
-            result.push(r);
-            values.push(...v);
+        for (const key of OPERATOR_KEYS) {
+            const value = dig(where, [...breadcrumb, key]);
+
+            if (Array.isArray(value) && value.every(isPojo)) {
+                const wheres = value as TWhereOptions<any>[];
+                const operator = key === 'or' ? ' OR ' : ' AND ';
+                const [r, v] = mapPairs(sql, strategy, wheres, operator);
+                result.push(r);
+                values.push(...v);
+            }
         }
     }
 
@@ -56,13 +67,13 @@ export function renderWhere (sql: TSchemeSql, table: TSchemaTable, where?: TWher
 
 function mapPairs (
     sql: TSchemeSql,
-    table: TSchemaTable,
+    strategy: TStrategy[],
     wheres: TWhereOptions<any>[],
     operator: string
 ): [string, unknown[]] {
     const result: string[] = [];
     const values: unknown[] = [];
-    const pairs = wheres.map(where => renderWhere(sql, table, where));
+    const pairs = wheres.map(where => renderWhere(sql, strategy, where));
 
     for (const [r, v] of pairs) {
         result.push(`(${r})`);

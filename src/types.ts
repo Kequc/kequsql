@@ -1,5 +1,5 @@
 import { DbTable, DbTableInclude, DbTableOptions, DbTableSelect, DbTableWhere, TKey } from './index';
-import { TSchema, TSchemaOptions } from './schema/schema-types';
+import { TRelation, TSchema, TSchemaColumn, TSchemaOptions, TSchemaTable } from './schema/schema-types';
 
 export type TScheme = 'mysql' | 'postgres';
 export interface TConnectionAttrs {
@@ -23,13 +23,21 @@ export type TTransaction = <T = unknown> (cb: (query: TQuery) => Promise<T>) => 
 export type TSchemeSql = {
     q: (value: string) => string;
 };
-export type TStrategyConnection = {
+export type TSchemeConnection = {
     query: TQuery;
     transaction: TTransaction;
 };
 
+export interface TStrategy {
+    table: TSchemaTable;
+    breadcrumb: string[];
+    columns: TSchemaColumn[];
+    relations: TRelation[];
+    parentTable?: TSchemaTable;
+}
+
 export type TKequsql = TInternal & TProjTables;
-export type TInternal = TStrategyConnection & {
+export type TInternal = TSchemeConnection & {
     info: { scheme: TScheme; database: string; }
     sql: TSchemeSql;
     schema: TSchema;

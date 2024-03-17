@@ -1,16 +1,15 @@
-import { TFindManyOptions, TFindOptions, TInternal, TQuery, TRaw, TWhereOptions } from '../../types';
+import { TFindManyOptions, TFindOptions, TInternal, TQuery, TRaw, TStrategy, TWhereOptions } from '../../types';
 import { DbTable, DbTableWhere, TKey } from '../../../project/types';
 import { TRelation } from '../../schema/schema-types';
-import { zipper } from '../../helpers';
+import { dig, drill, zipper } from '../../helpers';
 import performFind from './perform-find';
-import { TFindStrategy, dig, drill } from './helpers';
 import matchesWhere from './matches-where';
 
 export default async function performFindRelations<T extends TKey> (
     db: TInternal,
     query: TQuery,
     options: TFindManyOptions<T>,
-    strategy: TFindStrategy[],
+    strategy: TStrategy[],
     rows: DbTable[T][],
 ) {
     const results = await Promise.all(strategy.map(async ({ relations, breadcrumb }) => {

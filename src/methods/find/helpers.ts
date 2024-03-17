@@ -1,5 +1,5 @@
-import { TSchemaTable, TSchemaColumn, TRelation } from '../../schema/schema-types';
-import { TOrderOptions, TRaw, TSchemeSql } from '../../types';
+import { zipper } from '../../helpers';
+import { TOrderOptions, TSchemeSql, TStrategy } from '../../types';
 
 export function renderOrderBy (sql: TSchemeSql, order: TOrderOptions<any> = {}) {
     const result: string[] = [];
@@ -17,44 +17,27 @@ export function renderLimit ({ limit, offset }: { limit?: number, offset?: numbe
     return `LIMIT ${limit}`;
 }
 
-export interface TFindStrategy {
-    table: TSchemaTable;
-    breadcrumb: string[];
-    columns: TSchemaColumn[];
-    relations: TRelation[];
-}
-
 export function renderSelect (
     sql: TSchemeSql,
-    strategy: TFindStrategy[],
+    strategy: TStrategy[],
 ): string {
-    return strategy.map(({ columns }, i) => renderSelectColumns(sql, columns, i)).flat().join(', ');
-}
-
-function renderSelectColumns (
-    sql: TSchemeSql,
-    columns: TSchemaColumn[],
-    tableIndex: number,
-): string[] {
-    let i = 0;
-    return columns.map(({ name }) => `t${tableIndex}.${sql.q(name)} t${tableIndex}_${i++}`);
+    return strategy.map(({ columns }, index) => {
+        return columns.map(({ name }, i) => `t${index}.${sql.q(name)} t${index}_${i}`);
+    }).flat().join(', ');
 }
 
 export function renderFrom (
     sql: TSchemeSql,
-    strategy: TFindStrategy[],
-    relations: TRelation[],
+    strategy: TStrategy[],
 ): string[] {
     const result: string[] = [];
 
-    for (const [index, { table }] of strategy.entries()) {
-        if (index === 0) {
-            result.push(`FROM ${sql.q(table.name)} t0`);
-            continue;
-        }
-
-        result.push(`JOIN ${sql.q(table.name)} t${index}`);
-        result.push(renderOn(sql, strategy, relations, index));
+    for (let index = 0; index < strategy.length; index++) {
+        const { table } = strategy[index];
+        const command = index === 0 ? 'FROM' : 'JOIN';
+        result.push(`${command} ${sql.q(table.name)} t${index}`);
+        if (index === 0) continue;
+        result.push(renderOn(sql, strategy, index));
     }
 
     return result;
@@ -62,40 +45,17 @@ export function renderFrom (
 
 function renderOn (
     sql: TSchemeSql,
-    strategy: TFindStrategy[],
-    relations: TRelation[],
+    strategy: TStrategy[],
     index: number,
 ): string {
-    const result: string[] = [];
-    const { table } = strategy[index];
-    const relation = relations.find(relation => relation.table === table);
-    const parentIndex = strategy.findIndex(({ table }) => table === relation.table);
+    const { table, parentTable } = strategy[index];
+    const relation = table.relations.find(({ table }) => table === parentTable);
+    const parentIndex = strategy.findIndex(({ table }) => table === parentTable);
 
-    for (let i = 0; i < relation.columns.length; i++) {
-        result.push(`t${index}.${sql.q(relation.columns[i])} = t${parentIndex}.${sql.q(relation.ids[i])}`);
-    }
+    const result = zipper(
+        [relation.columns, relation.ids],
+        (column, id) => `t${parentIndex}.${sql.q(id)} = t${index}.${sql.q(column)}`,
+    );
 
     return 'ON ' + result.join(' AND ');
-}
-
-export function drill (result: TRaw, breadcrumb: string[], value: unknown): void {
-    let current = result;
-
-    for (let i = 0; i < breadcrumb.length - 1; i++) {
-        const key = breadcrumb[i];
-        if (current[key] === undefined) current[key] = {};
-        current = current[key] as TRaw;
-    }
-
-    current[breadcrumb[breadcrumb.length - 1]] = value;
-}
-
-export function dig (row: TRaw, breadcrumb: string[]): TRaw {
-    let current = row;
-
-    for (let i = 0; i < breadcrumb.length; i++) {
-        current = current[breadcrumb[i] as keyof typeof current] as TRaw;
-    }
-
-    return current;
 }

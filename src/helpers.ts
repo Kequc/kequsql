@@ -1,4 +1,5 @@
 import pluralize from 'pluralize';
+import { TRaw } from './types';
 
 export function arraysMatch (a: string[], b: string[]): boolean {
     if (a.length !== b.length) return false;
@@ -58,4 +59,28 @@ export function deepFreeze (o: any) {
 export function getDisplayTable (table: string, singular = true) {
     const name = table.charAt(0).toLowerCase() + table.slice(1);
     return singular ? name : pluralize.plural(name);
+}
+
+export function drill (data: TRaw, breadcrumb: string[], value: unknown): void {
+    if (breadcrumb.length === 0) throw new Error('Cannot drill with empty breadcrumb');
+
+    let current = data;
+
+    for (let i = 0; i < breadcrumb.length - 1; i++) {
+        const key = breadcrumb[i];
+        if (current[key] === undefined) current[key] = {};
+        current = current[key] as TRaw;
+    }
+
+    current[breadcrumb[breadcrumb.length - 1]] = value;
+}
+
+export function dig (data: TRaw, breadcrumb: string[]): TRaw | undefined {
+    let current = data;
+
+    for (const key of breadcrumb) {
+        current = current?.[key as keyof typeof current] as TRaw;
+    }
+
+    return current;
 }
