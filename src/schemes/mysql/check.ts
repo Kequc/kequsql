@@ -1,5 +1,6 @@
-import { TInternal, TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaIndexType, TSchemaTable, TSchemaTableOptions } from '../../types';
-import { getDisplayTable, zipper } from '../../helpers';
+import { TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaIndexType, TSchemaTable, TSchemaTableOptions } from '@/schema/schema-types';
+import { getDisplayTable, zipper } from '@/helpers';
+import { TInternal } from '@/types';
 
 export default async function getTables (db: TInternal): Promise<TSchemaTable[]> {
     const query = `
@@ -84,10 +85,10 @@ function collapsedIndexParse (raw: any[]): TSchemaIndex {
 }
 
 function getIndexType (raw: any): TSchemaIndexType {
-    if (raw.Key_name === 'PRIMARY') return 'PRIMARY KEY';
-    if (raw.Non_unique === 0) return 'UNIQUE';
-    if (raw.Index_type === 'FULLTEXT') return 'FULLTEXT';
-    return 'INDEX';
+    if (raw.Key_name === 'PRIMARY') return 'primary';
+    if (raw.Non_unique === 0) return 'unique';
+    if (raw.Index_type === 'FULLTEXT') return 'fulltext';
+    return 'index';
 }
 
 async function getForeignKeys (db: TInternal, table: string): Promise<TSchemaForeignKey[]> {

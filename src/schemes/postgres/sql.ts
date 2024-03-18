@@ -1,4 +1,4 @@
-import { TSchemeSql } from '../../types';
+import { TSchemeSql } from '@/types';
 
 const sql: TSchemeSql = {
     q (value: string) {

@@ -1,4 +1,4 @@
-import { TScheme } from '../types';
+import { TScheme } from '@/types';
 import { TSchemaColumn } from './schema-types';
 
 export default function renderColumnType (scheme: TScheme, column: TSchemaColumn) {

@@ -10,7 +10,7 @@ function generateInternal (tables: TSchemaTableOptions[] = []): TInternal {
         query: util.spy(),
         transaction: util.spy(),
         info: { scheme: 'mysql', database: 'database' },
-        sql: { q: util.spy(value => `'${value}'`) },
+        sql: { q: util.spy(value => `\`${value}\``) },
         schema: getSchema({
             connection: 'connection',
             schema: { tables },
@@ -23,7 +23,7 @@ function s(...parts: string[]) {
     return parts.join('\n') + ';';
 }
 
-it('generates a simple select statement', () => {
+it('simple select statement', () => {
     const db = generateInternal([{
         name: 'User',
         columns: [{ name: 'id', type: 'integer', auto: true }],
@@ -34,8 +34,8 @@ it('generates a simple select statement', () => {
     const result = prepareFind(db, tables[0], options);
 
     assert.strictEqual(result.rendered, s(
-        "SELECT t0.'id' t0_0",
-        "FROM 'User' t0",
+        "SELECT t0.`id` t0_0",
+        "FROM `User` t0",
     ));
     assert.deepStrictEqual(result.values, []);
     assert.deepStrictEqual(result.strategy, [{
@@ -47,7 +47,7 @@ it('generates a simple select statement', () => {
     }]);
 });
 
-it('generates a select statement with where clause', () => {
+it('where clause', () => {
     const db = generateInternal([{
         name: 'User',
         columns: [{ name: 'id', type: 'integer', auto: true }],
@@ -58,9 +58,9 @@ it('generates a select statement with where clause', () => {
     const result = prepareFind(db, tables[0], options);
 
     assert.strictEqual(result.rendered, s(
-        "SELECT t0.'id' t0_0",
-        "FROM 'User' t0",
-        "WHERE t0.'id' = ?",
+        "SELECT t0.`id` t0_0",
+        "FROM `User` t0",
+        "WHERE t0.`id` = ?",
     ));
     assert.deepStrictEqual(result.values, [1]);
     assert.deepStrictEqual(result.strategy, [{
@@ -72,7 +72,26 @@ it('generates a select statement with where clause', () => {
     }]);
 });
 
-it('generates a select statement with where clause in a joining table', () => {
+it('simple select with limit offset and order by', () => {
+    const db = generateInternal([{
+        name: 'User',
+        columns: [{ name: 'id', type: 'integer', auto: true }],
+        indexes: [{ type: 'primary', column: 'id' }],
+    }]);
+    const tables = db.schema.tables;
+    const options: any = { limit: 10, offset: 5, orderBy: { id: 'desc' } };
+    const result = prepareFind(db, tables[0], options);
+
+    assert.strictEqual(result.rendered, s(
+        "SELECT t0.`id` t0_0",
+        "FROM `User` t0",
+        "ORDER BY t0.`id` DESC",
+        "LIMIT 10 OFFSET 5",
+    ));
+    assert.deepStrictEqual(result.values, []);
+});
+
+it('where clause in a joining table', () => {
     const db = generateInternal([{
         name: 'User',
         columns: [{ name: 'id', type: 'integer', auto: true }],
@@ -91,16 +110,16 @@ it('generates a select statement with where clause in a joining table', () => {
     const result = prepareFind(db, tables[0], options);
 
     assert.strictEqual(result.rendered, s(
-        "SELECT t0.'id' t0_0",
-        "FROM 'User' t0",
-        "JOIN 'Post' t1",
-        "ON t0.'id' = t1.'userId'",
-        "WHERE t1.'id' = ?",
+        "SELECT t0.`id` t0_0",
+        "FROM `User` t0",
+        "JOIN `Post` t1",
+        "ON t0.`id` = t1.`userId`",
+        "WHERE t1.`id` = ?",
     ));
     assert.deepStrictEqual(result.values, [1]);
 });
 
-it('generates a select statement with where clause in a joining table and a where clause in the main table', () => {
+it('where clause in a joining table and a where clause in the main table', () => {
     const db = generateInternal([{
         name: 'User',
         columns: [{ name: 'id', type: 'integer', auto: true }],
@@ -119,16 +138,16 @@ it('generates a select statement with where clause in a joining table and a wher
     const result = prepareFind(db, tables[0], options);
 
     assert.strictEqual(result.rendered, s(
-        "SELECT t0.'id' t0_0",
-        "FROM 'User' t0",
-        "JOIN 'Post' t1",
-        "ON t0.'id' = t1.'userId'",
-        "WHERE t0.'id' = ? AND t1.'id' = ?",
+        "SELECT t0.`id` t0_0",
+        "FROM `User` t0",
+        "JOIN `Post` t1",
+        "ON t0.`id` = t1.`userId`",
+        "WHERE t0.`id` = ? AND t1.`id` = ?",
     ));
     assert.deepStrictEqual(result.values, [1, 2]);
 });
 
-it('generates a select statement which selects from two tables', () => {
+it('selects from two tables', () => {
     const db = generateInternal([{
         name: 'User',
         columns: [{ name: 'id', type: 'integer', auto: true }],
@@ -150,15 +169,15 @@ it('generates a select statement which selects from two tables', () => {
     const result = prepareFind(db, tables[0], options);
 
     assert.strictEqual(result.rendered, s(
-        "SELECT t0.'id' t0_0, t1.'id' t1_0, t1.'userId' t1_1",
-        "FROM 'User' t0",
-        "JOIN 'Address' t1",
-        "ON t0.'id' = t1.'userId'",
+        "SELECT t0.`id` t0_0, t1.`id` t1_0, t1.`userId` t1_1",
+        "FROM `User` t0",
+        "JOIN `Address` t1",
+        "ON t0.`id` = t1.`userId`",
     ));
     assert.deepStrictEqual(result.values, []);
 });
 
-it('generates a select statement which selects from two tables and has a where clause', () => {
+it('selects from two tables and has a where clause', () => {
     const db = generateInternal([{
         name: 'User',
         columns: [{ name: 'id', type: 'integer', auto: true }],
@@ -180,16 +199,16 @@ it('generates a select statement which selects from two tables and has a where c
     const result = prepareFind(db, tables[0], options);
 
     assert.strictEqual(result.rendered, s(
-        "SELECT t0.'id' t0_0, t1.'id' t1_0, t1.'userId' t1_1",
-        "FROM 'User' t0",
-        "JOIN 'Address' t1",
-        "ON t0.'id' = t1.'userId'",
-        "WHERE t0.'id' = ?",
+        "SELECT t0.`id` t0_0, t1.`id` t1_0, t1.`userId` t1_1",
+        "FROM `User` t0",
+        "JOIN `Address` t1",
+        "ON t0.`id` = t1.`userId`",
+        "WHERE t0.`id` = ?",
     ));
     assert.deepStrictEqual(result.values, [1]);
 });
 
-it('generates a select statement which selectes from a deeply nested table', () => {
+it('selectes from a deeply nested table', () => {
     const db = generateInternal([{
         name: 'User',
         columns: [{ name: 'id', type: 'integer', auto: true }],
@@ -215,21 +234,19 @@ it('generates a select statement which selectes from a deeply nested table', () 
             { name: 'id', type: 'integer', auto: true },
             { name: 'name', type: 'string' },
         ],
-        indexes: [
-            { type: 'primary', column: 'id' },
-        ],
+        indexes: [{ type: 'primary', column: 'id' }],
     }]);
     const tables = db.schema.tables;
     const options: any = { include: { address: { include: { country: true } } } };
     const result = prepareFind(db, tables[0], options);
 
     assert.strictEqual(result.rendered, s(
-        "SELECT t0.'id' t0_0, t1.'id' t1_0, t1.'userId' t1_1, t1.'countryId' t1_2, t2.'id' t2_0, t2.'name' t2_1",
-        "FROM 'User' t0",
-        "JOIN 'Address' t1",
-        "ON t0.'id' = t1.'userId'",
-        "JOIN 'Country' t2",
-        "ON t1.'countryId' = t2.'id'",
+        "SELECT t0.`id` t0_0, t1.`id` t1_0, t1.`userId` t1_1, t1.`countryId` t1_2, t2.`id` t2_0, t2.`name` t2_1",
+        "FROM `User` t0",
+        "JOIN `Address` t1",
+        "ON t0.`id` = t1.`userId`",
+        "JOIN `Country` t2",
+        "ON t1.`countryId` = t2.`id`",
     ));
     assert.deepStrictEqual(result.values, []);
 });

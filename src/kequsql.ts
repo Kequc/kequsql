@@ -1,9 +1,9 @@
-import { getSchemeConnection, getSchemeSql } from './schemes';
-import { TInternal, TKequsql, TOptions, TProjTable } from './types';
-import { TKey } from '../project/types';
-import getConnectionAttrs from './prep/get-connection-attrs';
-import getSchema from './prep/get-schema';
-import getTables from './prep/get-tables';
+import { getSchemeConnection, getSchemeSql } from '@/schemes';
+import { TInternal, TKequsql, TOptions, TProjTable } from '@/types';
+import { TKey } from '@project/types';
+import getConnectionAttrs from '@/prep/get-connection-attrs';
+import getSchema from '@/prep/get-schema';
+import getTables from '@/prep/get-tables';
 
 export default function kequsql (options: TOptions): TKequsql {
     const connectionAttrs = getConnectionAttrs(options.connection);

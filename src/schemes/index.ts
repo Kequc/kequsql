@@ -4,8 +4,8 @@ import mysqlConnection from './mysql/connection';
 import postgresConnection from './postgres/connection';
 import mysqlSql from './mysql/sql';
 import postgresSql from './postgres/sql';
-import { TConnectionAttrs, TInternal, TScheme, TSchemeSql } from '../types';
-import { TSchemaTable } from '../schema/schema-types';
+import { TConnectionAttrs, TInternal, TScheme, TSchemeSql } from '@/types';
+import { TSchemaTable } from '@/schema/schema-types';
 
 const SCHEMES = {
     mysql: {

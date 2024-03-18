@@ -1,5 +1,6 @@
-import { TInternal, TSchemaColumn, TSchemaForeignKey, TSchemaForeignKeyType, TSchemaIndex, TSchemaIndexType, TSchemaTable, TSchemaTableOptions } from '../../types';
-import { getDisplayTable, zipper } from '../../helpers';
+import { TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaIndexType, TSchemaTable, TSchemaTableOptions } from '@/schema/schema-types';
+import { getDisplayTable, zipper } from '@/helpers';
+import { TInternal } from '@/types';
 
 export default async function getTables (db: TInternal): Promise<TSchemaTable[]> {
     const query = `
@@ -76,9 +77,9 @@ function indexParse (raw: any): TSchemaIndex {
 }
 
 function getIndexType (indexDef: string): TSchemaIndexType {
-    if (indexDef.includes('UNIQUE')) return 'UNIQUE';
-    if (indexDef.includes('PRIMARY KEY')) return 'PRIMARY KEY';
-    return 'INDEX';
+    if (indexDef.includes('UNIQUE')) return 'unique';
+    if (indexDef.includes('PRIMARY KEY')) return 'primary';
+    return 'index';
 }
 
 async function getForeignKeys (db: TInternal, table: string): Promise<TSchemaForeignKey[]> {
@@ -117,16 +118,6 @@ function collapsedForeignKeyParse (raw: any[]): TSchemaForeignKey {
         onDelete: getForeignKeyRule(items[0].DELETE_RULE),
         onUpdate: getForeignKeyRule(items[0].UPDATE_RULE)
     };
-}
-
-function getForeignKeyRule (rule: string): TSchemaForeignKeyType {
-    switch (rule) {
-        case 'r': return 'RESTRICT';
-        case 'c': return 'CASCADE';
-        case 'n': return 'SET NULL';
-        case 'd': return 'SET DEFAULT';
-        default: return 'NO ACTION';
-    }
 }
 
 function nameSort (a: { name: string }, b: { name: string }): number {

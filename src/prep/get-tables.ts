@@ -1,11 +1,10 @@
-import { DbTable, TKey } from '../index';
 import { TInternal, TProjTable, TProjTables, TCreateManyOptions, TCreateOptions, TDestroyManyOptions, TDestroyOptions, TFindManyOptions, TFindOptions, TUpdateManyOptions, TUpdateOptions } from '../types';
-import { TSchemaTable } from '../schema/schema-types';
-
-import performCreate from '../methods/perform-create';
-import performDestroy from '../methods/perform-destroy';
-import performUpdate from '../methods/perform-update';
-import performFind from '../methods/find/perform-find';
+import performCreate from '@/methods/perform-create';
+import performDestroy from '@/methods/perform-destroy';
+import performUpdate from '@/methods/perform-update';
+import performFind from '@/methods/find/perform-find';
+import { TSchemaTable } from '@/schema/schema-types';
+import { DbTable, TKey } from '@project/types';
 
 export default function getTables (db: TInternal): TProjTables {
     const result: Record<string, TProjTable<any>> = {};

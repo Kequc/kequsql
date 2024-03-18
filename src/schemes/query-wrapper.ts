@@ -1,9 +1,7 @@
-import { TQuery } from '../types';
-import { loadConfig } from '../util/load-file';
+import { TQuery } from '@/types';
 
 export default function queryWrapper (performQuery: TQuery) {
     return async function query<T = unknown> (sql: string, values?: unknown[], silent?: boolean) {
-        const config = await loadConfig();
         const startedAt = Date.now();
         let rows: T;
 
@@ -14,7 +12,7 @@ export default function queryWrapper (performQuery: TQuery) {
             throw error;
         }
 
-        if (!silent && !config.silent) {
+        if (!silent) {
             console.log('\n' + sql);
             console.log(Array.isArray(rows) ? rows.length : 0, 'rows', Date.now() - startedAt, 'ms');
         }

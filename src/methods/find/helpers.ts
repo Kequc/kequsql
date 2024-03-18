@@ -1,11 +1,16 @@
-import { zipper } from '../../helpers';
-import { TOrderOptions, TSchemeSql, TStrategy } from '../../types';
+import { zipper } from '@/helpers';
+import { TOrderOptions, TSchemeSql, TStrategy } from '@/types';
+
+const DIRECTION = {
+    asc: 'ASC',
+    desc: 'DESC',
+};
 
 export function renderOrderBy (sql: TSchemeSql, order: TOrderOptions<any> = {}) {
     const result: string[] = [];
 
-    for (const [name, value] of Object.entries(order)) {
-        result.push(`${sql.q(name)} ${value}`);
+    for (const [name, direction] of Object.entries(order)) {
+        result.push(`t0.${sql.q(name)} ${DIRECTION[direction]}`);
     }
 
     return result.length === 0 ? '' : `ORDER BY ${result.join(', ')}`;

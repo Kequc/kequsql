@@ -1,9 +1,9 @@
-import { arraysMatch, deepFreeze, getDisplayTable } from '../helpers';
-import { TKey } from '../index';
-import { TOptions } from '../types';
-import { TSchema, TSchemaForeignKey, TSchemaIndex, TSchemaTable, TSchemaTableOptions, TRelation, TReturnStrategy } from '../schema/schema-types';
-import validateSchema from '../schema/validate-schema';
-import { getColumns, getIds } from '../schema/schema-parser';
+import { arraysMatch, deepFreeze, getDisplayTable } from '@/helpers';
+import { TSchema, TSchemaForeignKey, TSchemaIndex, TSchemaTable, TSchemaTableOptions, TRelation, TReturnStrategy } from '@/schema/schema-types';
+import validateSchema from '@/schema/validate-schema';
+import { getColumns, getIds } from '@/schema/schema-parser';
+import { TKey } from '@project/types-example';
+import { TOptions } from '@/types';
 
 export default function getSchema ({ schema }: TOptions): TSchema {
     const tables: TSchemaTable[] = schema.tables.map((table) => ({

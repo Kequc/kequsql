@@ -10,13 +10,13 @@
         "outDir": "dist",
         "baseUrl": ".",
         "paths": {
-            "*": [
-                "node_modules/*",
-                "src/types/*"
-            ]
+            "@database/*": ["database/*"],
+            "@project/*": ["project/*"],
+            "@/*" : ["src/*"]
         }
     },
     "include": [
+        "project/**/*",
         "src/**/*"
     ]
 }

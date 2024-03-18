@@ -1,9 +1,9 @@
-import { TFindManyOptions, TInternal, TQuery, TRaw, TStrategy } from '../../types';
-import { DbTable, TKey } from '../../../project/types';
-import { TSchemaTable } from '../../schema/schema-types';
+import { TFindManyOptions, TInternal, TQuery, TRow, TStrategy } from '@/types';
+import { DbTable, TKey } from '@project/types';
+import { TSchemaTable } from '@/schema/schema-types';
 import prepareFind from './prepare-find';
 import performFindRelations from './perform-find-relations';
-import { drill } from '../../helpers';
+import { drill } from '@/helpers';
 
 export default async function performFind<T extends TKey> (
     db: TInternal,
@@ -13,33 +13,36 @@ export default async function performFind<T extends TKey> (
 ): Promise<DbTable[T][]> {
     const { rendered, strategy, values } = prepareFind(db, table, options);
 
-    const raw = await query<TRaw[]>(rendered, values);
-    const rows = reconstructRows<T>(raw, strategy);
+    const raw = await query<TRow[]>(rendered, values);
+    const rows = reconstructRows(raw, strategy);
+    const result = await performFindRelations(db, query, options, strategy, rows);
 
-    return await performFindRelations(db, query, options, strategy, rows);
+    return result as unknown as DbTable[T][];
 }
 
-function reconstructRows<T extends TKey> (raw: TRaw[], strategy: TStrategy[]): DbTable[T][] {
+function reconstructRows (raw: TRow[], strategy: TStrategy[]): TRow[] {
     return raw.map(row => {
         const result = buildRow(row, strategy, 0);
 
         for (let index = 1; index < strategy.length; index++) {
             const { breadcrumb, columns } = strategy[index];
             if (columns.length === 0) continue;
-            drill(result, breadcrumb, buildRow(row, strategy, index));
+            const subRow = buildRow(row, strategy, index);
+            if (Object.values(subRow).every(value => value === null)) continue;
+            drill(result, breadcrumb, subRow);
         }
 
-        return result as unknown as DbTable[T];
+        return result;
     });
 }
 
-function buildRow (row: TRaw, strategy: TStrategy[], index: number): TRaw {
-    const result: TRaw = {};
+function buildRow (row: TRow, strategy: TStrategy[], index: number): TRow {
+    const result: TRow = {};
     const { columns } = strategy[index];
 
     for (let i = 0; i < columns.length; i++) {
         const column = columns[i];
-        result[column.name] = row[`t${index}_${i}` as keyof typeof row] ?? null;
+        result[column.name] = row[`t${index}_${i}`] ?? null;
     }
 
     return result;

@@ -1,4 +1,4 @@
-import { TConnectionAttrs, TScheme } from '../types';
+import { TConnectionAttrs, TScheme } from '@/types';
 
 const CONNECTION_STRING = new RegExp(
     "^\\s*" + // Optional whitespace padding at the beginning of the line

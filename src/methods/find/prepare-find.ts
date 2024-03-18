@@ -1,7 +1,7 @@
-import { renderSql } from '../../helpers';
-import { TKey } from '../../../project/types';
-import { TRelation, TSchemaColumn, TSchemaTable } from '../../schema/schema-types';
-import { TFindManyOptions, TFindOptions, TInternal, TStrategy, TWhereOptions } from '../../types';
+import { renderSql } from '@/helpers';
+import { TKey } from '@project/types';
+import { TRelation, TSchemaColumn, TSchemaTable } from '@/schema/schema-types';
+import { TFindManyOptions, TFindOptions, TInternal, TStrategy, TWhereOptions } from '@/types';
 import { renderWhere } from '../util/render-where';
 import { renderFrom, renderLimit, renderOrderBy, renderSelect } from './helpers';
 

@@ -1,4 +1,4 @@
-import { TConnectionAttrs, TOptions, TQuery, TSchemeConnection } from '../../types';
+import { TConnectionAttrs, TOptions, TQuery, TSchemeConnection } from '@/types';
 import devWrapper from "../dev-wrapper";
 import queryWrapper from '../query-wrapper';
 

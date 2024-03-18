@@ -1,5 +1,5 @@
-import { DbTable, DbTableInclude, DbTableOptions, DbTableSelect, DbTableWhere, TKey } from './index';
-import { TRelation, TSchema, TSchemaColumn, TSchemaOptions, TSchemaTable } from './schema/schema-types';
+import { DbTable, DbTableInclude, DbTableOptions, DbTableSelect, DbTableWhere, TKey } from '@project/types';
+import { TRelation, TSchema, TSchemaColumn, TSchemaOptions, TSchemaTable } from '@/schema/schema-types';
 
 export type TScheme = 'mysql' | 'postgres';
 export interface TConnectionAttrs {
@@ -129,10 +129,9 @@ export type TAscDesc = 'asc' | 'desc';
 export type TOrderOptions<T extends TKey> = Partial<{ [name in keyof DbTableSelect[T]]: TAscDesc }>;
 export type TSelectOptions<T extends TKey> = DbTableSelect[T];
 export type TIncludeOptions<T extends TKey> = DbTableInclude[T];
-export type TRaw = Record<string, unknown>;
+export type TRow = Record<string, unknown>;
 
-export type TWaiting<T extends TKey> = TFindManyOptions<T> & {
-    query: TQuery;
-    resolve: (value: Partial<DbTable[T]>[]) => void;
-    reject: (reason?: any) => void;
+export type TInsertResponse = {
+    insertId: number;
+    affectedRows: number;
 };

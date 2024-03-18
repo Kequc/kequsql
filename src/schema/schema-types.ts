@@ -41,8 +41,9 @@ export type TSchemaColumn = {
 
 export type TSchemaColumnDefault<T> = (() => T) | T;
 
+export type TSchemaIndexType = 'primary' | 'index' | 'unique' | 'fulltext';
 export type TSchemaIndex = {
-    type: 'primary' | 'index' | 'unique' | 'fulltext';
+    type: TSchemaIndexType;
     column: string | string[];
 };
 
@@ -88,6 +89,6 @@ export interface TRelation {
 }
 
 export interface TReturnStrategy {
-    increment: string | undefined;
-    unique: string[] | undefined;
+    increment?: string;
+    unique?: string[];
 }

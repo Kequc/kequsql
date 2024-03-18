@@ -1,5 +1,5 @@
 import pluralize from 'pluralize';
-import { TRaw } from './types';
+import { TRow } from '@/types';
 
 export function arraysMatch (a: string[], b: string[]): boolean {
     if (a.length !== b.length) return false;
@@ -61,7 +61,7 @@ export function getDisplayTable (table: string, singular = true) {
     return singular ? name : pluralize.plural(name);
 }
 
-export function drill (data: TRaw, breadcrumb: string[], value: unknown): void {
+export function drill (data: TRow, breadcrumb: string[], value: unknown): void {
     if (breadcrumb.length === 0) throw new Error('Cannot drill with empty breadcrumb');
 
     let current = data;
@@ -69,17 +69,17 @@ export function drill (data: TRaw, breadcrumb: string[], value: unknown): void {
     for (let i = 0; i < breadcrumb.length - 1; i++) {
         const key = breadcrumb[i];
         if (current[key] === undefined) current[key] = {};
-        current = current[key] as TRaw;
+        current = current[key] as TRow;
     }
 
     current[breadcrumb[breadcrumb.length - 1]] = value;
 }
 
-export function dig (data: TRaw, breadcrumb: string[]): TRaw | undefined {
+export function dig (data: TRow, breadcrumb: string[]): TRow | undefined {
     let current = data;
 
     for (const key of breadcrumb) {
-        current = current?.[key as keyof typeof current] as TRaw;
+        current = current?.[key as keyof typeof current] as TRow;
     }
 
     return current;
