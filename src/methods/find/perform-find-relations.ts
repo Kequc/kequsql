@@ -3,7 +3,7 @@ import { TKey } from '@project/types';
 import { TRelation } from '@/schema/schema-types';
 import { dig, drill, zipper } from '@/helpers';
 import performFind from './perform-find';
-import matchesWhere from './matches-where';
+import matchesWhere from '../util/matches-where';
 
 export default async function performFindRelations<T extends TKey> (
     db: TInternal,

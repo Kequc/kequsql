@@ -1,3 +1,5 @@
+import { TCreateManyOptions, TUpdateManyOptions } from '@/types';
+import { TKey } from '@project/types';
 import { getColumns, getIds } from './schema-parser';
 import { TSchemaColumn, TSchemaIndex, TSchemaOptions, TSchemaTable, TSchemaTableOptions } from './schema-types';
 
@@ -72,4 +74,16 @@ export function createSchema (schema: TSchemaOptions): TSchemaOptions {
 
 export function createTable (table: TSchemaTableOptions): TSchemaTableOptions {
     return table;
+}
+
+export function verifyCreateReturn<T extends TKey> (options: TCreateManyOptions<T>, table: TSchemaTable) {
+    if (!options.skipReturn && !table.returnStrategy.increment && !table.returnStrategy.unique) {
+        console.warn(`Table '${table.name}' has no return strategy. This means you must define a primary, unique, or autoincrement column on the table, or should set 'skipReturn' to true.`);
+    }
+}
+
+export function verifyUpdateReturn<T extends TKey> (options: TUpdateManyOptions<T>, table: TSchemaTable) {
+    if (!options.skipReturn && !table.returnStrategy.unique) {
+        console.warn(`Table '${table.name}' has no return strategy. This means you must define a primary, or unique column on the table, or should set 'skipReturn' to true.`);
+    }
 }

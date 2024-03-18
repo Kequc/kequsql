@@ -1,10 +1,11 @@
 import { TCreateManyOptions, TInsertResponse, TInternal, TQuery, TRow } from '@/types';
 import { DbTable, TKey } from '@project/types';
 import { TRelation, TSchemaTable } from '@/schema/schema-types';
+import { verifyCreateReturn } from '@/schema/validate-schema';
 import prepareCreate from './prepare-create';
 import getReturnOptions from './get-return-options';
-import performFind from '../find/perform-find';
 import performCreateRelation from './perform-create-relations';
+import performFind from '../find/perform-find';
 
 export default async function performCreate<T extends TKey> (
     db: TInternal,
@@ -12,6 +13,8 @@ export default async function performCreate<T extends TKey> (
     table: TSchemaTable,
     options: TCreateManyOptions<T>,
 ): Promise<DbTable[T][]> {
+    verifyCreateReturn(options, table);
+
     const { rendered, relations, values3, unique } = prepareCreate(db, table, options);
     const select = getMinimalSelect(relations, options.skipReturn);
     const allRows: TRow[] = [];

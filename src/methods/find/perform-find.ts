@@ -1,9 +1,9 @@
 import { TFindManyOptions, TInternal, TQuery, TRow, TStrategy } from '@/types';
 import { DbTable, TKey } from '@project/types';
 import { TSchemaTable } from '@/schema/schema-types';
+import { drill } from '@/helpers';
 import prepareFind from './prepare-find';
 import performFindRelations from './perform-find-relations';
-import { drill } from '@/helpers';
 
 export default async function performFind<T extends TKey> (
     db: TInternal,
