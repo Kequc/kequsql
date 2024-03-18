@@ -1,10 +1,10 @@
 import { TInternal, TProjTable, TProjTables, TCreateManyOptions, TCreateOptions, TDestroyManyOptions, TDestroyOptions, TFindManyOptions, TFindOptions, TUpdateManyOptions, TUpdateOptions } from '../types';
-import performCreate from '@/methods/perform-create';
-import performDestroy from '@/methods/perform-destroy';
-import performUpdate from '@/methods/perform-update';
-import performFind from '@/methods/find/perform-find';
-import { TSchemaTable } from '@/schema/schema-types';
 import { DbTable, TKey } from '@project/types';
+import { TSchemaTable } from '@/schema/schema-types';
+import performCreate from '@/methods/create/perform-create';
+import performDestroy from '@/methods/perform-destroy';
+import performUpdate from '@/methods/update/perform-update';
+import performFind from '@/methods/find/perform-find';
 
 export default function getTables (db: TInternal): TProjTables {
     const result: Record<string, TProjTable<any>> = {};
@@ -64,17 +64,16 @@ function buildCreateMany<T extends TKey> (db: TInternal, table: TSchemaTable) {
 }
 
 function buildUpdate<T extends TKey> (db: TInternal, table: TSchemaTable) {
-    return async function update (options: TUpdateOptions<T>): Promise<DbTable[T] | undefined> {
-        const results = await db.transaction(async (query) => {
+    return async function update (options: TUpdateOptions<T>): Promise<DbTable[T][]> {
+        return await db.transaction(async (query) => {
             return await performUpdate<T>(db, query, table, {
                 changes: [{ where: options.where, data: options.data }],
-                order: options.order,
+                orderBy: options.orderBy,
                 select: options.select,
                 include: options.include,
                 skipReturn: options.skipReturn
             });
         });
-        return results[0];
     };
 }
 

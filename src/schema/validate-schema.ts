@@ -81,9 +81,3 @@ export function verifyCreateReturn<T extends TKey> (options: TCreateManyOptions<
         console.warn(`Table '${table.name}' has no return strategy. This means you must define a primary, unique, or autoincrement column on the table, or should set 'skipReturn' to true.`);
     }
 }
-
-export function verifyUpdateReturn<T extends TKey> (options: TUpdateManyOptions<T>, table: TSchemaTable) {
-    if (!options.skipReturn && !table.returnStrategy.unique) {
-        console.warn(`Table '${table.name}' has no return strategy. This means you must define a primary, or unique column on the table, or should set 'skipReturn' to true.`);
-    }
-}

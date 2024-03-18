@@ -59,8 +59,10 @@ export function renderWhere (
         }
     }
 
+    if (result.length === 0) return ['', []];
+
     return [
-        result.join(' AND '),
+        'WHERE ' + result.join(' AND '),
         values
     ];
 }

@@ -13,7 +13,7 @@ export default function prepareDestroy<T extends TKey> (
 
     const result = renderSql(
         `DELETE FROM ${sql.q(table.name)}`,
-        whereSql ? `WHERE ${whereSql}` : '',
+        whereSql,
         renderOrder(sql, options.order),
         renderLimit(options)
     );

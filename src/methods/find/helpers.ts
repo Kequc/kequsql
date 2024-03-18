@@ -1,12 +1,12 @@
 import { zipper } from '@/helpers';
-import { TOrderOptions, TSchemeSql, TStrategy } from '@/types';
+import { TOrderByOptions, TSchemeSql, TStrategy } from '@/types';
 
 const DIRECTION = {
     asc: 'ASC',
     desc: 'DESC',
 };
 
-export function renderOrderBy (sql: TSchemeSql, order: TOrderOptions<any> = {}) {
+export function renderOrderBy (sql: TSchemeSql, order: TOrderByOptions<any> = {}) {
     const result: string[] = [];
 
     for (const [name, direction] of Object.entries(order)) {
@@ -29,38 +29,4 @@ export function renderSelect (
     return strategy.map(({ columns }, index) => {
         return columns.map(({ name }, i) => `t${index}.${sql.q(name)} t${index}_${i}`);
     }).flat().join(', ');
-}
-
-export function renderFrom (
-    sql: TSchemeSql,
-    strategy: TStrategy[],
-): string[] {
-    const result: string[] = [];
-
-    for (let index = 0; index < strategy.length; index++) {
-        const { table } = strategy[index];
-        const command = index === 0 ? 'FROM' : 'JOIN';
-        result.push(`${command} ${sql.q(table.name)} t${index}`);
-        if (index === 0) continue;
-        result.push(renderOn(sql, strategy, index));
-    }
-
-    return result;
-}
-
-function renderOn (
-    sql: TSchemeSql,
-    strategy: TStrategy[],
-    index: number,
-): string {
-    const { table, parentTable } = strategy[index];
-    const relation = table.relations.find(({ table }) => table === parentTable);
-    const parentIndex = strategy.findIndex(({ table }) => table === parentTable);
-
-    const result = zipper(
-        [relation.columns, relation.ids],
-        (column, id) => `t${parentIndex}.${sql.q(id)} = t${index}.${sql.q(column)}`,
-    );
-
-    return 'ON ' + result.join(' AND ');
 }

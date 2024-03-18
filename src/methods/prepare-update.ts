@@ -22,7 +22,7 @@ export default function prepareUpdate<T extends TKey> (
     const result = renderSql(
         `UPDATE ${sql.q(table.name)}`,
         `SET ${setSql}`,
-        whereSql ? `WHERE ${whereSql}` : ''
+        whereSql,
     );
 
     return {

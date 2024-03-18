@@ -50,7 +50,7 @@ export type TProjTable<T extends TKey> = {
     findMany: (options?: TFindManyOptions<T>) => Promise<DbTable[T][]>;
     create: (options: TCreateOptions<T>) => Promise<DbTable[T]>;
     createMany: (options: TCreateManyOptions<T>) => Promise<DbTable[T][]>;
-    update: (options: TUpdateOptions<T>) => Promise<DbTable[T] | undefined>;
+    update: (options: TUpdateOptions<T>) => Promise<DbTable[T][]>;
     updateMany: (options: TUpdateManyOptions<T>) => Promise<DbTable[T][]>;
     destroy: (options: TDestroyOptions<T>) => Promise<DbTable[T] | undefined>;
     destroyMany: (options: TDestroyManyOptions<T>) => Promise<DbTable[T][]>;
@@ -59,7 +59,7 @@ export type TProjTable<T extends TKey> = {
 export type TFindOptions<T extends TKey> = {
     where?: TWhereOptions<T>;
     offset?: number;
-    orderBy?: TOrderOptions<T>;
+    orderBy?: TOrderByOptions<T>;
     select?: TSelectOptions<T>;
     include?: TIncludeOptions<T>;
 };
@@ -78,8 +78,8 @@ export type TCreateManyOptions<T extends TKey> = {
 
 export type TUpdateOptions<T extends TKey> = {
     where?: TWhereOptions<T>;
-    data: Partial<DbTableOptions[T]>;
-    order?: TOrderOptions<T>;
+    data: DbTableOptions[T];
+    orderBy?: TOrderByOptions<T>;
     select?: TSelectOptions<T>;
     include?: TIncludeOptions<T>;
     skipReturn?: true;
@@ -87,9 +87,9 @@ export type TUpdateOptions<T extends TKey> = {
 export type TUpdateManyOptions<T extends TKey> = {
     changes: {
         where?: TWhereOptions<T>;
-        data: Partial<DbTableOptions[T]>;
+        data: DbTableOptions[T];
     }[],
-    order?: TOrderOptions<T>;
+    orderBy?: TOrderByOptions<T>;
     select?: TSelectOptions<T>;
     include?: TIncludeOptions<T>;
     skipReturn?: true;
@@ -97,7 +97,7 @@ export type TUpdateManyOptions<T extends TKey> = {
 
 export type TDestroyOptions<T extends TKey> = {
     where?: TWhereOptions<T>;
-    order?: TOrderOptions<T>;
+    orderBy?: TOrderByOptions<T>;
     select?: TSelectOptions<T>;
     include?: TIncludeOptions<T>;
     skipReturn?: true;
@@ -126,7 +126,7 @@ export type TWhereOptions<T extends TKey> = DbTableWhere[T] & {
     and?: TWhereOptions<T>[];
 };
 export type TAscDesc = 'asc' | 'desc';
-export type TOrderOptions<T extends TKey> = Partial<{ [name in keyof DbTableSelect[T]]: TAscDesc }>;
+export type TOrderByOptions<T extends TKey> = Partial<{ [name in keyof DbTableSelect[T]]: TAscDesc }>;
 export type TSelectOptions<T extends TKey> = DbTableSelect[T];
 export type TIncludeOptions<T extends TKey> = DbTableInclude[T];
 export type TRow = Record<string, unknown>;
