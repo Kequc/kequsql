@@ -2,8 +2,8 @@ import { renderSql } from '@/helpers';
 import { TKey } from '@project/types';
 import { TSchemaTable } from '@/schema/schema-types';
 import { TInternal, TRow, TSchemeSql, TStrategy, TUpdateManyOptions } from '@/types';
-import { renderWhere } from '../util/render-where';
 import calcStrategy from '../util/calc-strategy';
+import renderWhere from '../util/render-where';
 import renderFrom from '../util/render-from';
 
 export default function prepareUpdate<T extends TKey> (

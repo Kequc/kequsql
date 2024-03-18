@@ -3,7 +3,7 @@ import { dig, isPojo } from '../../helpers';
 
 const OPERATOR_KEYS = ['or', 'and'];
 
-export function renderWhere (
+export default function renderWhere (
     sql: TSchemeSql,
     strategy: TStrategy[],
     where?: TWhereOptions<any>,

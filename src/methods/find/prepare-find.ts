@@ -2,9 +2,9 @@ import { renderSql } from '@/helpers';
 import { TKey } from '@project/types';
 import { TSchemaTable } from '@/schema/schema-types';
 import { TFindManyOptions, TInternal } from '@/types';
-import { renderWhere } from '../util/render-where';
-import { renderLimit, renderOrderBy, renderSelect } from './helpers';
+import { renderLimit, renderOrderBy, renderSelect } from '../util/helpers';
 import calcStrategy from '../util/calc-strategy';
+import renderWhere from '../util/render-where';
 import renderFrom from '../util/render-from';
 
 export default function prepareFind<T extends TKey> (

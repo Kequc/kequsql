@@ -1,8 +1,8 @@
-import { TKey, TTable } from '../../../project/private-types';
-import { TWhereOptions } from '../../../project/types';
+import { TWhereOptions } from '@/types';
+import { DbTable, TKey } from '@project/types';
 
 export default function getComplexWhere<T extends TKey> (
-    parentRows: Partial<TTable<any>>[],
+    parentRows: DbTable[T][],
     ids: string[],
     columns?: string[]
 ): TWhereOptions<T> {
@@ -10,7 +10,7 @@ export default function getComplexWhere<T extends TKey> (
 
     if (columns.length === 1) {
         const key = ids[0];
-        const resultKey = columns[0] as keyof TTable<T>;
+        const resultKey = columns[0] as keyof DbTable[T];
 
         return {
             [key]: { in: parentRows.map(row => row[resultKey]) }
@@ -24,7 +24,7 @@ export default function getComplexWhere<T extends TKey> (
 
         for (let i = 0; i < ids.length; i++) {
             const key = ids[i] as keyof TWhereOptions<T>;
-            const resultKey = columns[i] as keyof TTable<T>;
+            const resultKey = columns[i] as keyof DbTable[T];
             q[key] = row[resultKey] as any; // TODO: fix this any
         }
 
