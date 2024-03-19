@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { renderSql } from '@/helpers';
+import { renderSql } from '@/util/helpers';
 import { TKey } from '@project/types';
 import { TRelation, TSchemaColumn, TSchemaTable } from '@/schema/schema-types';
 import { TCreateManyOptions, TInternal, TRow } from '@/types';

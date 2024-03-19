@@ -1,4 +1,4 @@
-import { isPojo } from '@/helpers';
+import { isPojo } from '@/util/helpers';
 import { TWhereModifierIn } from '@/types';
 
 export function buildReducer<T> (

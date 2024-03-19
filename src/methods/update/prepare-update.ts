@@ -1,10 +1,10 @@
-import { renderSql } from '@/helpers';
+import { renderSql } from '@/util/helpers';
 import { TKey } from '@project/types';
 import { TSchemaTable } from '@/schema/schema-types';
-import { TInternal, TRow, TSchemeSql, TStrategy, TUpdateManyOptions } from '@/types';
+import { TInternal, TRow, TClientSql, TStrategy, TUpdateManyOptions } from '@/types';
 import calcStrategy from '../util/calc-strategy';
 import renderWhere from '../util/render-where';
-import renderFrom from '../util/render-from';
+import { renderFrom } from '../util/render-etc';
 
 export default function prepareUpdate<T extends TKey> (
     db: TInternal,
@@ -39,7 +39,7 @@ function renderSchemeSql (
     setSql: string,
     whereSql: string,
 ) {
-    switch (db.info.scheme) {
+    switch (db.sql.scheme) {
         case 'mysql': return renderSql(
             `UPDATE ${db.sql.q(table.name)} t0`,
             ...renderFrom(db.sql, strategy).slice(1),
@@ -53,12 +53,12 @@ function renderSchemeSql (
             whereSql,
         );
         default:
-            throw new Error(`Unknown scheme: ${db.info.scheme}`);
+            throw new Error(`Unknown scheme: ${db.sql.scheme}`);
     }
 }
 
 function renderSet (
-    sql: TSchemeSql,
+    sql: TClientSql,
     table: TSchemaTable,
     data: TRow,
 ): [string, unknown[]]{

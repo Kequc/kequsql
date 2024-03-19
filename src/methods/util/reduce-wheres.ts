@@ -1,4 +1,4 @@
-import { isPojo, zipper } from '@/helpers';
+import { isPojo, zipper } from '@/util/helpers';
 import { TWhereOptions } from '@/types';
 import { buildBestMergeKey, buildCombiner, buildReducer, combineValues, deepEqual, hasSameKeys } from './reducer-tools';
 

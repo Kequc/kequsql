@@ -1,5 +1,5 @@
 import { TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaIndexType, TSchemaTable, TSchemaTableOptions } from '@/schema/schema-types';
-import { getDisplayTable, zipper } from '@/helpers';
+import { getDisplayTable, zipper } from '@/util/helpers';
 import { TInternal } from '@/types';
 
 export default async function getTables (db: TInternal): Promise<TSchemaTable[]> {

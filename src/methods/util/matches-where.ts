@@ -1,6 +1,6 @@
 import { TWhereOptions } from '@/types';
 import { DbTable, TKey } from '@project/types';
-import { isPojo } from '@/helpers';
+import { isPojo } from '@/util/helpers';
 
 export default function matchesWhere<T extends TKey> (row: DbTable[T], where: TWhereOptions<T> = {}) {
     for (const key of Object.keys(where)) {

@@ -1,10 +1,10 @@
-import { TSchemeSql, TStrategy, TWhereOptions } from '../../types';
-import { dig, isPojo } from '../../helpers';
+import { TClientSql, TStrategy, TWhereOptions } from '../../types';
+import { dig, isPojo } from '../../util/helpers';
 
 const OPERATOR_KEYS = ['or', 'and'];
 
 export default function renderWhere (
-    sql: TSchemeSql,
+    sql: TClientSql,
     strategy: TStrategy[],
     where?: TWhereOptions<any>,
 ): [string, unknown[]] {
@@ -68,7 +68,7 @@ export default function renderWhere (
 }
 
 function mapPairs (
-    sql: TSchemeSql,
+    sql: TClientSql,
     strategy: TStrategy[],
     wheres: TWhereOptions<any>[],
     operator: string
@@ -85,7 +85,7 @@ function mapPairs (
     return [`(${result.join(operator)})`, values];
 }
 
-function withOperator (sql: TSchemeSql, operator: string, name: string) {
+function withOperator (sql: TClientSql, operator: string, name: string) {
     switch (operator) {
         case 'in': return `${sql.q(name)} IN (?)`;
         case 'notIn': return `${sql.q(name)} NOT IN (?)`;

@@ -1,13 +1,13 @@
 import { TSchemaTable } from '@/schema/schema-types';
-import { TDestroyManyOptions, TSchemeSql } from '@/types';
+import { TDestroyManyOptions, TClientSql } from '@/types';
 import { TKey } from '@project/types';
-import { renderSql } from '@/helpers';
+import { renderSql } from '@/util/helpers';
 import calcStrategy from '../util/calc-strategy';
 import renderWhere from '../util/render-where';
-import { renderLimit, renderOrderBy } from '../util/helpers';
+import { renderLimit, renderOrderBy } from '../util/render-etc';
 
 export default function prepareDestroy<T extends TKey> (
-    sql: TSchemeSql,
+    sql: TClientSql,
     table: TSchemaTable,
     options: TDestroyManyOptions<T>
 ) {
