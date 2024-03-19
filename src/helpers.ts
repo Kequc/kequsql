@@ -4,7 +4,6 @@ import { TRow } from '@/types';
 export function arraysMatch (a: string[], b: string[]): boolean {
     if (a.length !== b.length) return false;
     if (!a.every((col, i) => col === b[i])) return false;
-
     return true;
 }
 
@@ -26,10 +25,7 @@ export function zipper<R> (arrays: any[][], cb: (...args: any[]) => R): R[] {
 }
 
 export function isPojo<T = any> (obj: unknown): obj is Record<string, T> {
-    if (obj === null || typeof obj !== "object") {
-        return false;
-    }
-
+    if (obj === null || typeof obj !== "object") return false;
     return Object.getPrototypeOf(obj) === Object.prototype;
 }
 
@@ -43,7 +39,6 @@ export function wat (title: string, data: unknown) {
 
 export function deepFreeze (o: any) {
     Object.freeze(o);
-
     Object.getOwnPropertyNames(o).forEach(function (prop) {
         if (o.hasOwnProperty(prop)
             && o[prop] !== null
@@ -52,7 +47,6 @@ export function deepFreeze (o: any) {
                 deepFreeze(o[prop]);
             }
     });
-
     return o;
 }
 

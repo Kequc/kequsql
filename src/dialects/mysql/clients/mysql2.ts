@@ -1,27 +1,20 @@
-import { TConnectionAttrs, TOptions, TQuery, TSchemeConnection } from '@/types';
-import devWrapper from "../dev-wrapper";
-import queryWrapper from '../query-wrapper';
+import { TClient, TQuery } from '@/types';
+import queryWrapper from '../../query-wrapper';
+import devWrapper from '../../dev-wrapper';
+import sql from '../sql';
 
-function loadModule () {
-    try {
-        return require('mysql2/promise');
-    } catch (error) {
-        throw new Error('Please install the mysql2 package');
-    }
-}
+// USAGE:
+// import mysql2 from "mysql2/promise";
+// import { kequsql, mysql2Client } from "kequsql";
+//
+// const client = mysql2Client(() => {
+//     return mysql2.createPool(process.env.DATABASE_URL!);
+// });
+//
+// const db = kequsql(client, { ... });
 
-export default function mysqlStrategy (conn: TConnectionAttrs, options?: TOptions): TSchemeConnection {
-    const mysql = loadModule();
-    const pool = devWrapper('mysqlStrategy', () => mysql.createPool({
-        user: conn.user,
-        password: conn.password,
-        host: conn.host,
-        port: conn.port,
-        database: conn.database,
-        waitForConnections: true,
-        connectionLimit: options?.connectionLimit ?? 10,
-        queueLimit: 0
-    }));
+export default function mysql2Client (getConn: () => any, name = 'dbConn'): TClient {
+    const pool = devWrapper(name, getConn);
 
     function buildQuery (query: TQuery) {
         return queryWrapper(async (sql: string, values?: unknown[]): Promise<any> => {
@@ -48,6 +41,7 @@ export default function mysqlStrategy (conn: TConnectionAttrs, options?: TOption
 
     return {
         query: buildQuery(pool.query.bind(pool)),
-        transaction
+        transaction,
+        sql,
     };
 }

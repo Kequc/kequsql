@@ -2,30 +2,17 @@ import { DbTable, DbTableInclude, DbTableOptions, DbTableSelect, DbTableWhere, T
 import { TRelation, TSchema, TSchemaColumn, TSchemaOptions, TSchemaTable } from '@/schema/schema-types';
 
 export type TScheme = 'mysql' | 'postgres';
-export interface TConnectionAttrs {
-    scheme: TScheme;
-    host: string;
-    user: string;
-    password: string;
-    database: string;
-    port?: number;
-}
 
 export interface TOptions {
-    connection: string | TConnectionAttrs;
     schema: TSchemaOptions;
-    connectionLimit?: number;
 }
 
 export type TQuery = <T = unknown> (sql: string, values?: unknown[], silent?: boolean) => Promise<T>;
 export type TTransaction = <T = unknown> (cb: (query: TQuery) => Promise<T>) => Promise<T>;
 
-export type TSchemeSql = {
+export type TClientSql = {
+    scheme: TScheme;
     q: (value: string) => string;
-};
-export type TSchemeConnection = {
-    query: TQuery;
-    transaction: TTransaction;
 };
 
 export interface TStrategy {
@@ -37,11 +24,14 @@ export interface TStrategy {
 }
 
 export type TKequsql = TInternal & TProjTables;
-export type TInternal = TSchemeConnection & {
-    info: { scheme: TScheme; database: string; }
-    sql: TSchemeSql;
+export type TInternal = TClient & {
     schema: TSchema;
     getTable (name: string): TProjTable<any>;
+};
+export type TClient = {
+    query: TQuery;
+    transaction: TTransaction;
+    sql: TClientSql;
 };
 export type TProjTables = { [name in TKey]: TProjTable<name> };
 

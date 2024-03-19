@@ -1,25 +1,25 @@
-import { TConnectionAttrs, TOptions, TQuery, TSchemeConnection } from '@/types';
-import devWrapper from "../dev-wrapper";
-import queryWrapper from '../query-wrapper';
+import { TClient, TQuery } from '@/types';
+import queryWrapper from '../../query-wrapper';
+import devWrapper from '../../dev-wrapper';
+import sql from '../sql';
 
-function loadModule () {
-    try {
-        return require('pg');
-    } catch (error) {
-        throw new Error('Please install the pg package');
-    }
-}
+// USAGE:
+// import pg from "pg";
+// import { kequsql, pgClient } from "kequsql";
+//
+// const client = pgClient(() => {
+//     return new pg.Pool({
+//         host: "host",
+//         user: "user",
+//         database: "database",
+//         ...
+//     });
+// });
+//
+// const db = kequsql(client, { ... });
 
-export default function postgresStrategy (conn: TConnectionAttrs, options?: TOptions): TSchemeConnection {
-    const pg = loadModule();
-    const pool = devWrapper('postgresStrategy', () => new pg.Pool({
-        user: conn.user,
-        password: conn.password,
-        host: conn.host,
-        port: conn.port,
-        database: conn.database,
-        max: options?.connectionLimit || 10
-    }));
+export default function pgClient (getConn: () => any, name = 'dbConn'): TClient {
+    const pool = devWrapper(name, getConn);
 
     function buildQuery (query: TQuery) {
         return queryWrapper(async (sql: string, values?: unknown[]): Promise<any> => {
@@ -46,6 +46,7 @@ export default function postgresStrategy (conn: TConnectionAttrs, options?: TOpt
 
     return {
         query: buildQuery(pool.query.bind(pool)),
-        transaction
+        transaction,
+        sql,
     };
 }

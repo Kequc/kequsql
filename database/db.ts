@@ -1,17 +1,10 @@
 import 'dotenv/config';
-import kequsql from '../src/index';
+import mysql2 from 'mysql2/promise';
+import { kequsql, mysql2Client } from '../src/index';
+import schema from './schema';
 
-import Address from './tables/Address';
-import Pet from './tables/Pet';
-import User from './tables/User';
-
-export default kequsql({
-    connection: process.env.DATABASE_URL!,
-    schema: {
-        tables: [
-            Address,
-            Pet,
-            User,
-        ],
-    },
+const client = mysql2Client(() => {
+    return mysql2.createPool(process.env.DATABASE_URL!);
 });
+
+export default kequsql(client, { schema });

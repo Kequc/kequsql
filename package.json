@@ -22,10 +22,6 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   },
-  "optionalDependencies": {
-    "mysql2": "^3.9.2",
-    "pg": "^8.11.3"
-  },
   "dependencies": {
     "pluralize": "^8.0.0"
   }
