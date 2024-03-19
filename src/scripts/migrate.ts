@@ -4,7 +4,6 @@ import path from 'path';
 import { TKequsql } from '../types';
 import checkMysql from '../dialects/mysql/check';
 import checkPostgres from '../dialects/postgres/check';
-import { wat } from '../util/helpers';
 
 async function main () {
     intro(`kequsl-migrate`);
@@ -26,15 +25,8 @@ async function main () {
     const s = spinner();
     s.start('Checking...');
 
-    const db: TKequsql = await import(getAbsolute(location));
-    try {
-        const checkTables = await getCheckTables(db);
-        wat('tables', checkTables);
-    } catch (error) {
-        console.error(error);
-        s.stop('Failed to check tables.');
-        throw error;
-    }
+    const db: TKequsql = (await import(getAbsolute(location))).default;
+    const checkTables = await getCheckTables(db);
 
     s.stop('Done!\n\nNow what?\n');
 
@@ -49,6 +41,7 @@ async function main () {
     }
 
     outro(`You're all set!`);
+    process.exit(0);
 }
 main();
 
