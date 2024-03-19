@@ -1,4 +1,4 @@
-import { TQuery } from '@/types';
+import { TQuery } from '../types';
 
 export default function queryWrapper (performQuery: TQuery) {
     return async function query<T = unknown> (sql: string, values?: unknown[], silent?: boolean) {

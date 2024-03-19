@@ -56,7 +56,7 @@ export type TSchemaForeignKey = {
     onUpdateDelete?: TSchemaForeignKeyAction;
 };
 
-export type TSchemaForeignKeyAction = 'cascade' | 'set null' | 'restrict';
+export type TSchemaForeignKeyAction = 'cascade' | 'set null' | 'restrict' | 'no action';
 
 export interface TSchema {
     tables: TSchemaTable[];

@@ -1,5 +1,5 @@
-import { isPojo, zipper } from '@/util/helpers';
-import { TWhereOptions } from '@/types';
+import { isPojo, zipper } from '../util/helpers';
+import { TWhereOptions } from '../types';
 import { buildBestMergeKey, buildCombiner, buildReducer, combineValues, deepEqual, hasSameKeys } from './reducer-tools';
 
 export default function reduceWheres (wheres: TWhereOptions<any>[]): TWhereOptions<any> | undefined {

@@ -1,9 +1,9 @@
-import { TRelation } from '@/schema/schema-types';
-import { DbTableOptions, TKey } from '@project/types';
-import { TRow, TCreateManyOptions, TInternal, TQuery, TWhereOptions } from '@/types';
+import { TRelation } from '../../schema/schema-types';
+import { DbTableOptions, TKey } from '../../../project/types';
+import { TRow, TCreateManyOptions, TInternal, TQuery, TWhereOptions } from '../../types';
 import performCreate from './perform-create';
-import { zipper } from '@/util/helpers';
-import matchesWhere from '../util/matches-where';
+import { zipper } from '../../util/helpers';
+import matchesWhere from '../../util/matches-where';
 
 export default async function performCreateRelations<T extends TKey> (
     db: TInternal,

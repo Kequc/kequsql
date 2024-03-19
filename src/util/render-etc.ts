@@ -1,5 +1,5 @@
-import { TOrderByOptions, TClientSql, TStrategy } from '@/types';
-import { zipper } from '@/util/helpers';
+import { TOrderByOptions, TClientSql, TStrategy } from '../types';
+import { zipper } from '../util/helpers';
 
 const DIRECTION = {
     asc: 'ASC',

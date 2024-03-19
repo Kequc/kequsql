@@ -1,4 +1,4 @@
-import { TClient, TQuery } from '@/types';
+import { TClient, TQuery } from '../../../types';
 import queryWrapper from '../../query-wrapper';
 import devWrapper from '../../dev-wrapper';
 import sql from '../sql';

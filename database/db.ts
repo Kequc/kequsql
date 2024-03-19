@@ -7,4 +7,6 @@ const client = mysql2Client(() => {
     return mysql2.createPool(process.env.DATABASE_URL!);
 });
 
-export default kequsql(client, { schema });
+const db = kequsql(client, { schema });
+
+export default db;

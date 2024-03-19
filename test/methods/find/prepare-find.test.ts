@@ -3,14 +3,17 @@ import assert from 'assert';
 import prepareFind from '../../../src/methods/find/prepare-find';
 import { TSchemaTableOptions } from '../../../src/schema/schema-types';
 import { TInternal } from '../../../src/types';
-import getSchema from '../../../src/prep/get-schema';
+import getSchema from '../../../src/schema/get-schema';
 
 function generateInternal (tables: TSchemaTableOptions[] = []): TInternal {
     return {
         query: util.spy(),
         transaction: util.spy(),
-        info: { scheme: 'mysql', database: 'database' },
-        sql: { q: util.spy(value => `\`${value}\``) },
+        sql: {
+            dialect: 'mysql',
+            q: util.spy(value => `\`${value}\``),
+            renderColumnType: util.spy(column => column.type),
+        },
         schema: getSchema({
             connection: 'connection',
             schema: { tables },

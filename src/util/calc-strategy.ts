@@ -1,6 +1,6 @@
-import { TRelation, TSchemaColumn, TSchemaTable } from '@/schema/schema-types';
-import { TFindOptions, TStrategy, TWhereOptions } from '@/types';
-import { TKey } from '@project/types';
+import { TRelation, TSchemaColumn, TSchemaTable } from '../schema/schema-types';
+import { TFindOptions, TStrategy, TWhereOptions } from '../types';
+import { TKey } from '../../project/types';
 
 export default function calcStrategy<T extends TKey> (
     table: TSchemaTable,

@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
-import { renderSql } from '@/util/helpers';
-import { TKey } from '@project/types';
-import { TRelation, TSchemaColumn, TSchemaTable } from '@/schema/schema-types';
-import { TCreateManyOptions, TInternal, TRow } from '@/types';
+import { renderSql } from '../../util/helpers';
+import { TKey } from '../../../project/types';
+import { TRelation, TSchemaColumn, TSchemaTable } from '../../schema/schema-types';
+import { TCreateManyOptions, TInternal, TRow } from '../../types';
 
 const BATCH_SIZE = 200;
 

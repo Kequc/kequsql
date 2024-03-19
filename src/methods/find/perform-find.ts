@@ -1,7 +1,7 @@
-import { TFindManyOptions, TInternal, TQuery, TRow, TStrategy } from '@/types';
-import { DbTable, TKey } from '@project/types';
-import { TSchemaTable } from '@/schema/schema-types';
-import { drill } from '@/util/helpers';
+import { TFindManyOptions, TInternal, TQuery, TRow, TStrategy } from '../../types';
+import { DbTable, TKey } from '../../../project/types';
+import { TSchemaTable } from '../../schema/schema-types';
+import { drill } from '../../util/helpers';
 import prepareFind from './prepare-find';
 import performFindRelations from './perform-find-relations';
 

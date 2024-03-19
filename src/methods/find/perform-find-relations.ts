@@ -1,9 +1,9 @@
-import { TFindOptions, TInternal, TQuery, TRow, TStrategy, TWhereOptions } from '@/types';
-import { TKey } from '@project/types';
-import { TRelation } from '@/schema/schema-types';
-import { dig, drill, zipper } from '@/util/helpers';
+import { TFindOptions, TInternal, TQuery, TRow, TStrategy, TWhereOptions } from '../../types';
+import { TKey } from '../../../project/types';
+import { TRelation } from '../../schema/schema-types';
+import { dig, drill, zipper } from '../../util/helpers';
 import performFind from './perform-find';
-import matchesWhere from '../util/matches-where';
+import matchesWhere from '../../util/matches-where';
 
 export default async function performFindRelations<T extends TKey> (
     db: TInternal,

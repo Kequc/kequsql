@@ -1,7 +1,6 @@
-import { TCreateManyOptions, TInsertResponse, TInternal, TQuery, TRow } from '@/types';
-import { DbTable, TKey } from '@project/types';
-import { TRelation, TSchemaTable } from '@/schema/schema-types';
-import { verifyCreateReturn } from '@/schema/validate-schema';
+import { TCreateManyOptions, TInsertResponse, TInternal, TQuery, TRow } from '../../types';
+import { DbTable, TKey } from '../../../project/types';
+import { TRelation, TSchemaTable } from '../../schema/schema-types';
 import prepareCreate from './prepare-create';
 import getReturnOptions from './get-return-options';
 import performCreateRelation from './perform-create-relations';
@@ -53,4 +52,10 @@ function getMinimalSelect (relations: TRelation[], skipReturn: boolean) {
     }
 
     return select;
+}
+
+function verifyCreateReturn<T extends TKey> (options: TCreateManyOptions<T>, table: TSchemaTable) {
+    if (!options.skipReturn && !table.returnStrategy.increment && !table.returnStrategy.unique) {
+        console.warn(`Table '${table.name}' has no return strategy. This means you must define a primary, unique, or autoincrement column on the table, or should set 'skipReturn' to true.`);
+    }
 }

@@ -8,12 +8,7 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
-        "baseUrl": ".",
-        "paths": {
-            "@database/*": ["database/*"],
-            "@project/*": ["project/*"],
-            "@/*" : ["src/*"]
-        }
+        "baseUrl": "."
     },
     "include": [
         "project/**/*",

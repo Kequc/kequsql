@@ -1,10 +1,10 @@
 import { TInternal, TProjTable, TProjTables, TCreateManyOptions, TCreateOptions, TDestroyManyOptions, TDestroyOptions, TFindManyOptions, TFindOptions, TUpdateManyOptions, TUpdateOptions } from '../types';
-import { DbTable, TKey } from '@project/types';
-import { TSchemaTable } from '@/schema/schema-types';
-import performCreate from '@/methods/create/perform-create';
-import performDestroy from '@/methods/destroy/perform-destroy';
-import performUpdate from '@/methods/update/perform-update';
-import performFind from '@/methods/find/perform-find';
+import { DbTable, TKey } from '../../project/types';
+import { TSchemaTable } from '../schema/schema-types';
+import performCreate from '../methods/create/perform-create';
+import performDestroy from '../methods/destroy/perform-destroy';
+import performUpdate from '../methods/update/perform-update';
+import performFind from '../methods/find/perform-find';
 
 export default function getTables (db: TInternal): TProjTables {
     const result: Record<string, TProjTable<any>> = {};

@@ -4,7 +4,8 @@
   "description": "ORM for TypeScript | PostgreSQL, MySQL",
   "main": "src/index.ts",
   "scripts": {
-    "test": "kequtest --ts"
+    "test": "kequtest --ts",
+    "migrate": "ts-node ./src/scripts/migrate.ts"
   },
   "keywords": [
     "nodejs",
@@ -17,12 +18,19 @@
   "author": "Nathan Lunde-Berry",
   "license": "ISC",
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/pluralize": "^0.0.33",
+    "dotenv": "^16.4.5",
     "kequtest": "^1.0.3",
+    "mysql2": "^3.9.2",
+    "pg": "^8.11.3",
+    "postgres": "^3.4.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   },
   "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "fs-extra": "^11.2.0",
     "pluralize": "^8.0.0"
   }
 }

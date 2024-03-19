@@ -1,5 +1,5 @@
 import pluralize from 'pluralize';
-import { TRow } from '@/types';
+import { TRow } from '../types';
 
 export function arraysMatch (a: string[], b: string[]): boolean {
     if (a.length !== b.length) return false;

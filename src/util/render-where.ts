@@ -1,5 +1,5 @@
-import { TClientSql, TStrategy, TWhereOptions } from '../../types';
-import { dig, isPojo } from '../../util/helpers';
+import { TClientSql, TStrategy, TWhereOptions } from '../types';
+import { dig, isPojo } from './helpers';
 
 const OPERATOR_KEYS = ['or', 'and'];
 

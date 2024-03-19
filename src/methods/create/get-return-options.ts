@@ -1,6 +1,6 @@
-import { TSchemaTable } from '@/schema/schema-types';
-import { TKey } from '@project/types';
-import { TFindManyOptions, TInsertResponse, TRow } from '@/types';
+import { TSchemaTable } from '../../schema/schema-types';
+import { TKey } from '../../../project/types';
+import { TFindManyOptions, TInsertResponse, TRow } from '../../types';
 
 export default function getReturnOptions<T extends TKey> (
     table: TSchemaTable,

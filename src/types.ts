@@ -1,7 +1,7 @@
-import { DbTable, DbTableInclude, DbTableOptions, DbTableSelect, DbTableWhere, TKey } from '@project/types';
-import { TRelation, TSchema, TSchemaColumn, TSchemaOptions, TSchemaTable } from '@/schema/schema-types';
+import { DbTable, DbTableInclude, DbTableOptions, DbTableSelect, DbTableWhere, TKey } from '../project/types';
+import { TRelation, TSchema, TSchemaColumn, TSchemaOptions, TSchemaTable } from './schema/schema-types';
 
-export type TScheme = 'mysql' | 'postgres';
+export type TDialect = 'mysql' | 'postgres';
 
 export interface TOptions {
     schema: TSchemaOptions;
@@ -11,8 +11,9 @@ export type TQuery = <T = unknown> (sql: string, values?: unknown[], silent?: bo
 export type TTransaction = <T = unknown> (cb: (query: TQuery) => Promise<T>) => Promise<T>;
 
 export type TClientSql = {
-    scheme: TScheme;
+    dialect: TDialect;
     q: (value: string) => string;
+    renderColumnType: (column: TSchemaColumn) => string;
 };
 
 export interface TStrategy {

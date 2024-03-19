@@ -1,5 +1,5 @@
-import { isPojo } from '@/util/helpers';
-import { TWhereModifierIn } from '@/types';
+import { isPojo } from '../util/helpers';
+import { TWhereModifierIn } from '../types';
 
 export function buildReducer<T> (
     comparator: (a: T, b: T) => boolean,

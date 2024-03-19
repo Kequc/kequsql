@@ -1,10 +1,10 @@
-import { renderSql } from '@/util/helpers';
-import { TKey } from '@project/types';
-import { TSchemaTable } from '@/schema/schema-types';
-import { TInternal, TRow, TClientSql, TStrategy, TUpdateManyOptions } from '@/types';
-import calcStrategy from '../util/calc-strategy';
-import renderWhere from '../util/render-where';
-import { renderFrom } from '../util/render-etc';
+import { renderSql } from '../../util/helpers';
+import { TKey } from '../../../project/types';
+import { TSchemaTable } from '../../schema/schema-types';
+import { TInternal, TRow, TClientSql, TStrategy, TUpdateManyOptions } from '../../types';
+import calcStrategy from '../../util/calc-strategy';
+import renderWhere from '../../util/render-where';
+import { renderFrom } from '../../util/render-etc';
 
 export default function prepareUpdate<T extends TKey> (
     db: TInternal,
@@ -16,7 +16,7 @@ export default function prepareUpdate<T extends TKey> (
         const [setSql, setValues] = renderSet(db.sql, table, change.data as TRow);
         const [whereSql, whereValues] = renderWhere(db.sql, strategy, change.where);
 
-        const rendered = renderSchemeSql(
+        const rendered = renderDialectSql(
             db,
             table,
             strategy,
@@ -32,14 +32,14 @@ export default function prepareUpdate<T extends TKey> (
     });
 }
 
-function renderSchemeSql (
+function renderDialectSql (
     db: TInternal,
     table: TSchemaTable,
     strategy: TStrategy[],
     setSql: string,
     whereSql: string,
 ) {
-    switch (db.sql.scheme) {
+    switch (db.sql.dialect) {
         case 'mysql': return renderSql(
             `UPDATE ${db.sql.q(table.name)} t0`,
             ...renderFrom(db.sql, strategy).slice(1),
@@ -53,7 +53,7 @@ function renderSchemeSql (
             whereSql,
         );
         default:
-            throw new Error(`Unknown scheme: ${db.sql.scheme}`);
+            throw new Error(`Unknown dialect: ${db.sql.dialect}`);
     }
 }
 
