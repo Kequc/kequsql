@@ -2,10 +2,7 @@ import { TSchemaForeignKeyAction, TSchemaIndexType } from '../schema/types';
 
 export interface TCheckColumn {
     name: string;
-    nullable: boolean;
     type: string;
-    default: string;
-    extra: string;
 }
 
 export interface TCheckForeignKey {

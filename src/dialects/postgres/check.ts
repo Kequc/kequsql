@@ -46,12 +46,19 @@ function columnSort (a: any, b: any): number {
 }
 
 function columnParse (raw: any): TCheckColumn {
+    const columnType = raw.data_type.toUpperCase();
+    const isNotString = raw.column_default === null || columnType.startsWith('INTEGER') || columnType.startsWith('SERIAL') || columnType.startsWith('BOOLEAN');
+    const defaultValue = isNotString ? raw.COLUMN_DEFAULT : `'${raw.COLUMN_DEFAULT}'`;
+
+    const type = [
+        raw.data_type,
+        raw.is_nullable === 'YES' ? '' : 'NOT NULL',
+        defaultValue === null ? '' : `DEFAULT ${defaultValue}`,
+    ].filter(Boolean).join(' ');
+
     return {
         name: raw.column_name,
-        type: raw.data_type.toUpperCase(),
-        default: raw.column_default,
-        nullable: raw.is_nullable === 'YES',
-        extra: '',
+        type,
     };
 }
 

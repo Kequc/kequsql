@@ -2,6 +2,7 @@ import { renderSql, zipper } from '../../util/helpers';
 import { TInternal } from '../../types';
 import { TCheckColumn, TCheckForeignKey, TCheckIndex, TCheckTable } from '../types';
 import { TSchemaIndexType } from '../../schema/types';
+import { getIndexName } from '../../schema/schema-parser';
 
 export default async function getTables (db: TInternal): Promise<TCheckTable[]> {
     const query = renderSql(
@@ -42,22 +43,30 @@ async function getColumns (db: TInternal, table: string): Promise<TCheckColumn[]
 }
 
 function columnSort (a: any, b: any): number {
-    return a.ORDINAL_POSITION - b.ORDINAL_POSITION;
+    return Number(a.ORDINAL_POSITION) - Number(b.ORDINAL_POSITION);
 }
 
 function columnParse (raw: any): TCheckColumn {
+    const columnType = raw.COLUMN_TYPE.toUpperCase();
+    const isNotString = raw.COLUMN_DEFAULT === null || columnType.startsWith('INT') || columnType.startsWith('TINYINT');
+    const defaultValue = isNotString ? raw.COLUMN_DEFAULT : `'${raw.COLUMN_DEFAULT}'`;
+
+    const type = [
+        raw.COLUMN_TYPE,
+        raw.EXTRA.toUpperCase(),
+        raw.IS_NULLABLE === 'YES' ? '' : 'NOT NULL',
+        defaultValue === null ? '' : `DEFAULT ${defaultValue}`,
+    ].filter(Boolean).join(' ');
+
     return {
         name: raw.COLUMN_NAME,
-        nullable: raw.IS_NULLABLE === 'YES',
-        type: raw.COLUMN_TYPE.toUpperCase(),
-        default: raw.COLUMN_DEFAULT,
-        extra: raw.EXTRA.toUpperCase(),
+        type,
     };
 }
 
 async function getIndexes (db: TInternal, table: string): Promise<TCheckIndex[]> {
     const query = renderSql(
-        'SHOW INDEX FROM ${table}',
+        `SHOW INDEX FROM ${db.sql.q(table)}`,
     );
     const raw = await db.query<any[]>(query, undefined, true);
     const collapsed: Record<string, TCheckIndex[]> = {};
@@ -67,20 +76,22 @@ async function getIndexes (db: TInternal, table: string): Promise<TCheckIndex[]>
         collapsed[item.Key_name].push(item);
     }
 
-    return Object.values(collapsed).map(collapsedIndexParse).sort(indexNameSort);
+    return Object.values(collapsed).map(raw => collapsedIndexParse(table, raw)).sort(indexNameSort);
 }
 
 function indexNameSort (a: { columns: string[] }, b: { columns: string[] }): number {
     return a.columns.join('_').localeCompare(b.columns.join('_'));
 }
 
-function collapsedIndexParse (raw: any[]): TCheckIndex {
+function collapsedIndexParse (table: string, raw: any[]): TCheckIndex {
+    const name = raw[0].Key_name;
     const items = raw.sort((a, b) => a.Seq_in_index - b.Seq_in_index);
+    const columns = items.map(item => item.Column_name);
 
     return {
-        name: raw[0].Key_name,
+        name: name === 'PRIMARY' ? getIndexName(table, columns) : name,
         type: getIndexType(raw[0]),
-        columns: items.map(item => item.Column_name),
+        columns,
     };
 }
 
@@ -120,8 +131,8 @@ function collapsedForeignKeyParse (raw: any[]): TCheckForeignKey {
         table: raw[0].REFERENCED_TABLE_NAME,
         ids: items.map(item => item.REFERENCED_COLUMN_NAME),
         columns: items.map(item => item.COLUMN_NAME),
-        onDelete: raw[0].DELETE_RULE,
-        onUpdate: raw[0].UPDATE_RULE,
+        onDelete: raw[0].DELETE_RULE.toLowerCase(),
+        onUpdate: raw[0].UPDATE_RULE.toLowerCase(),
     };
 }
 

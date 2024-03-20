@@ -1,4 +1,5 @@
-import { TSchemaColumnDefault, TSchemaForeignKey, TSchemaIndex, TSchemaOptions, TSchemaTable, TSchemaTableOptions } from './types';
+import { TCheckForeignKey, TCheckIndex } from '../dialects/types';
+import { TSchemaColumn, TSchemaColumnDefault, TSchemaForeignKey, TSchemaForeignKeyAction, TSchemaIndex, TSchemaOptions, TSchemaTable, TSchemaTableOptions } from './types';
 
 export function createSchema (schema: TSchemaOptions): TSchemaOptions {
     return schema;
@@ -20,10 +21,18 @@ export function getDefault (def: TSchemaColumnDefault<any>) {
     return typeof def === 'function' ? def() : def;
 }
 
-export function getIndexName (table: TSchemaTable, index: TSchemaIndex) {
-    return `${table.name}_${getColumns(index.column).join('_')}_idx`;
+export function getIndexName (tableName: string, column: string | string[]) {
+    return `${tableName}_${getColumns(column).join('_')}_idx`;
 }
 
-export function getForeignKeyName (table: TSchemaTable, foreignKey: TSchemaForeignKey) {
-    return `${table.name}_${getColumns(foreignKey.column).join('_')}_${foreignKey.table}_${getIds(foreignKey.id).join('_')}_fkey`;
+export function getForeignKeyName (tableName: string, foreignKey: TSchemaForeignKey) {
+    return `${tableName}_${getColumns(foreignKey.column).join('_')}_${foreignKey.table}_${getIds(foreignKey.id).join('_')}_fkey`;
+}
+
+export function getForeignKeyonUpdate (foreignKey: TSchemaForeignKey): TSchemaForeignKeyAction {
+    return foreignKey.onUpdate ?? foreignKey.onUpdateDelete ?? 'no action';
+}
+
+export function getForeignKeyonDelete (foreignKey: TSchemaForeignKey): TSchemaForeignKeyAction {
+    return foreignKey.onDelete ?? foreignKey.onUpdateDelete ?? 'no action';
 }

@@ -1,21 +1,22 @@
 import { TCheckColumn, TCheckForeignKey, TCheckIndex, TCheckTable } from '../../dialects/types';
-import { getColumns, getForeignKeyName, getIds, getIndexName } from '../../schema/schema-parser';
-import { TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaTable } from '../../schema/types';
+import { getColumns, getForeignKeyName, getForeignKeyonDelete, getForeignKeyonUpdate, getIds, getIndexName } from '../../schema/schema-parser';
+import { TSchemaForeignKey, TSchemaIndex } from '../../schema/types';
+import { TInternal } from '../../types';
 import { TColumnsDifference, TDifferences, TForeignKeysDifference, TIndexesDifference, TTablesDifference } from '../types';
 
-export default function findDifferences (schemaTables: TSchemaTable[], checkTables: TCheckTable[]): TDifferences {
+export default function findDifferences ({ sql, schema }: TInternal, checkTables: TCheckTable[]): TDifferences {
     const tables: TTablesDifference = { create: [], delete: [] };
     const columns: TColumnsDifference = { create: [], update: [], delete: [] };
     const indexes: TIndexesDifference = { create: [], delete: [] };
     const foreignKeys: TForeignKeysDifference = { create: [], delete: [] };
 
-    const createTables = schemaTables.filter(schemaTable => !checkTables.some(checkTable => checkTable.name === schemaTable.name)).map(table => ({ table }));
+    const createTables = schema.tables.filter(schemaTable => !checkTables.some(checkTable => checkTable.name === schemaTable.name)).map(table => ({ table }));
     tables.create.push(...createTables);
     const createTablesFk = createTables.map(({ table }) => table.foreignKeys.map(foreignKey => ({ table, foreignKey }))).flat();
     foreignKeys.create.push(...createTablesFk);
 
     for (const checkTable of checkTables) {
-        const schemaTable = schemaTables.find(schemaTable => schemaTable.name === checkTable.name);
+        const schemaTable = schema.tables.find(schemaTable => schemaTable.name === checkTable.name);
 
         if (!schemaTable) {
             tables.delete.push({ table: checkTable });
@@ -33,16 +34,16 @@ export default function findDifferences (schemaTables: TSchemaTable[], checkTabl
                 continue;
             }
 
-            if (columnChanged(schemaColumn, checkColumn)) {
+            if (columnChanged(sql.renderColumnType(schemaTable, schemaColumn), checkColumn)) {
                 columns.update.push({ table: schemaTable, column: schemaColumn });
             }
         }
 
-        const createIndexes = schemaTable.indexes.filter(schemaIndex => !checkTable.indexes.some(checkIndex => checkIndex.name === getIndexName(schemaTable, schemaIndex))).map(index => ({ table: schemaTable, index }));
+        const createIndexes = schemaTable.indexes.filter(schemaIndex => !checkTable.indexes.some(checkIndex => checkIndex.name === getIndexName(schemaTable.name, schemaIndex.column))).map(index => ({ table: schemaTable, index }));
         indexes.create.push(...createIndexes);
 
         for (const checkIndex of checkTable.indexes) {
-            const schemaIndex = schemaTable.indexes.find(schemaIndex => getIndexName(schemaTable, schemaIndex) === checkIndex.name);
+            const schemaIndex = schemaTable.indexes.find(schemaIndex => getIndexName(schemaTable.name, schemaIndex.column) === checkIndex.name);
 
             if (!schemaIndex) {
                 indexes.delete.push({ table: schemaTable, index: checkIndex });
@@ -55,11 +56,11 @@ export default function findDifferences (schemaTables: TSchemaTable[], checkTabl
             }
         }
 
-        const createForeignKeys = schemaTable.foreignKeys.filter(schemaForeignKey => !checkTable.foreignKeys.some(checkForeignKey => checkForeignKey.name === getForeignKeyName(schemaTable, schemaForeignKey))).map(foreignKey => ({ table: schemaTable, foreignKey }));
+        const createForeignKeys = schemaTable.foreignKeys.filter(schemaForeignKey => !checkTable.foreignKeys.some(checkForeignKey => checkForeignKey.name === getForeignKeyName(schemaTable.name, schemaForeignKey))).map(foreignKey => ({ table: schemaTable, foreignKey }));
         foreignKeys.create.push(...createForeignKeys);
 
         for (const checkForeignKey of checkTable.foreignKeys) {
-            const schemaForeignKey = schemaTable.foreignKeys.find(schemaForeignKey => getForeignKeyName(schemaTable, schemaForeignKey) === checkForeignKey.name);
+            const schemaForeignKey = schemaTable.foreignKeys.find(schemaForeignKey => getForeignKeyName(schemaTable.name, schemaForeignKey) === checkForeignKey.name);
 
             if (!schemaForeignKey) {
                 foreignKeys.delete.push({ table: schemaTable, foreignKey: checkForeignKey });
@@ -81,22 +82,21 @@ export default function findDifferences (schemaTables: TSchemaTable[], checkTabl
     };
 }
 
-function columnChanged (schemaColumn: TSchemaColumn, checkColumn: TCheckColumn) {
-    if (schemaColumn.type !== checkColumn.type) return false;
-    if (schemaColumn.nullable !== checkColumn.nullable) return false;
-    return true;
+function columnChanged (schemaColumnType: string, checkColumn: TCheckColumn) {
+    if (schemaColumnType !== checkColumn.type) return true;
+    return false;
 }
 
 function indexChanged (schemaIndex: TSchemaIndex, checkIndex: TCheckIndex) {
-    if (schemaIndex.type !== checkIndex.type) return false;
-    if (getColumns(schemaIndex.column).join(',') !== checkIndex.columns.join(',')) return false;
-    return true;
+    if (schemaIndex.type !== checkIndex.type) return true;
+    if (getColumns(schemaIndex.column).join(',') !== checkIndex.columns.join(',')) return true;
+    return false;
 }
 
 function foreignKeyChanged (schemaForeignKey: TSchemaForeignKey, checkForeignKey: TCheckForeignKey) {
-    if (getIds(schemaForeignKey.id).join(',') !== checkForeignKey.ids.join(',')) return false;
-    if (getColumns(schemaForeignKey.column).join(',') !== checkForeignKey.columns.join(',')) return false;
-    if (schemaForeignKey.onDelete !== checkForeignKey.onDelete) return false;
-    if (schemaForeignKey.onUpdate !== checkForeignKey.onUpdate) return false;
-    return true;
+    if (getIds(schemaForeignKey.id).join(',') !== checkForeignKey.ids.join(',')) return true;
+    if (getColumns(schemaForeignKey.column).join(',') !== checkForeignKey.columns.join(',')) return true;
+    if (getForeignKeyonDelete(schemaForeignKey) !== checkForeignKey.onDelete) return true;
+    if (getForeignKeyonUpdate(schemaForeignKey) !== checkForeignKey.onUpdate) return true;
+    return false;
 }

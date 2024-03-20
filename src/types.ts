@@ -13,7 +13,7 @@ export type TTransaction = <T = unknown> (cb: (query: TQuery) => Promise<T>) => 
 export type TClientSql = {
     dialect: TDialect;
     q: (value: string) => string;
-    renderColumnType: (column: TSchemaColumn) => string;
+    renderColumnType: (table: TSchemaTable, column: TSchemaColumn) => string;
 };
 
 export interface TStrategy {

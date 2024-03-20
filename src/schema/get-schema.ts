@@ -1,7 +1,7 @@
 import { arraysMatch, deepFreeze, getDisplayTable } from '../util/helpers';
 import { TSchema, TSchemaForeignKey, TSchemaIndex, TSchemaTable, TSchemaTableOptions, TRelation, TReturnStrategy } from './types';
 import validateSchema from '../schema/validate-schema';
-import { getColumns, getIds } from '../schema/schema-parser';
+import { getColumns, getForeignKeyName, getIds, getIndexName } from '../schema/schema-parser';
 import { TKey } from '../../project/types';
 import { TOptions } from '../types';
 
@@ -27,13 +27,13 @@ function getIndexes (table: TSchemaTableOptions): TSchemaIndex[] {
     const foreignKeys = getForeignKeys(table);
     const indexes = (table.indexes ?? []).map(index => ({
         ...index,
-        name: index.type === 'primary' ? 'PRIMARY' : `${table.name}_${getColumns(index.column).join('_')}_idx`
+        name: index.type === 'primary' ? 'PRIMARY' : getIndexName(table.name, index.column),
     }));
     const fkIndexes: TSchemaIndex[] = foreignKeys
         // ensure that the x foreign key columns match the index's first x columns
         .filter(fk => !indexes.some(index => getColumns(fk.column).every((col, i) => col === getColumns(index.column)[i])))
         .map(fk => ({
-            name: `${table.name}_${getColumns(fk.column).join('_')}_idx`,
+            name: getIndexName(table.name, fk.column),
             type: 'index',
             column: fk.column,
         }));
@@ -44,7 +44,7 @@ function getIndexes (table: TSchemaTableOptions): TSchemaIndex[] {
 function getForeignKeys (table: TSchemaTableOptions): TSchemaForeignKey[] {
     return (table.foreignKeys ?? []).map(fk => ({
         ...fk,
-        name: `${table.name}_${getColumns(fk.column).join('_')}_${fk.table}_${getIds(fk.id).join('_')}_fk`
+        name: getForeignKeyName(table.name, fk),
     }));
 }
 

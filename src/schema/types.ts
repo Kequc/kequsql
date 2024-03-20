@@ -6,11 +6,11 @@ export type TSchemaColumn = {
     default?: TSchemaColumnDefault<boolean>;
 } | {
     type: 'date';
-    default?: TSchemaColumnDefault<Date>;
+    default?: TSchemaColumnDefault<Date | TSchemaDate>;
     auto?: boolean;
 } | {
     type: 'datetime';
-    default?: TSchemaColumnDefault<Date>;
+    default?: TSchemaColumnDefault<Date | TSchemaDatetime>;
     auto?: boolean;
 } | {
     type: 'enum';
@@ -31,13 +31,18 @@ export type TSchemaColumn = {
     size?: 'medium' | 'long' | number;
 } | {
     type: 'time';
-    default?: TSchemaColumnDefault<Date>;
+    default?: TSchemaColumnDefault<Date | TSchemaTime>;
     auto?: boolean;
 } | {
     type: 'uuid';
     default?: TSchemaColumnDefault<string>;
     auto?: boolean;
 });
+
+type TwoDigit = `${number}${number}`;
+export type TSchemaDate = `${TwoDigit}${TwoDigit}-${TwoDigit}-${TwoDigit}`; // YYYY-MM-DD
+export type TSchemaTime = `${TwoDigit}:${TwoDigit}:${TwoDigit}`; // HH:MM:SS
+export type TSchemaDatetime = `${TSchemaDate} ${TSchemaTime}`; // YYYY-MM-DD HH:MM:SS
 
 export type TSchemaColumnDefault<T> = (() => T) | T;
 

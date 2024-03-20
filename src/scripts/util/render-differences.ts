@@ -1,5 +1,5 @@
 import { pluralize } from '../../util/helpers';
-import { getForeignKeyName, getIndexName } from '../../schema/schema-parser';
+import { getForeignKeyName, getForeignKeyonDelete, getForeignKeyonUpdate, getIndexName } from '../../schema/schema-parser';
 import { TDifferences } from '../types';
 import { green, red } from './helpers';
 
@@ -31,10 +31,10 @@ export default function renderDifferences (differences: TDifferences) {
         rows.push(['update column', getColumnName(table, column), '']);
     }
     for (const { table, index } of differences.indexes.create) {
-        rows.push(['create index', getIndexName(table, index), index.type]);
+        rows.push(['create index', getIndexName(table.name, index.column), index.type]);
     }
     for (const { table, foreignKey } of differences.foreignKeys.create) {
-        rows.push(['create fkey', getForeignKeyName(table, foreignKey), getForeignKeyAction(foreignKey)]);
+        rows.push(['create fkey', getForeignKeyName(table.name, foreignKey), getForeignKeyAction(foreignKey)]);
     }
 
     const columnLengths = rows.reduce((acc, row) => {
@@ -63,8 +63,7 @@ function getColumnName (table: any, column: any): string {
 }
 
 function getForeignKeyAction (fk: any): string {
-    if (fk.onUpdateDelete) return fk.onUpdateDelete + ', ' + fk.onUpdateDelete;
-    return (fk.onUpdate ?? 'no action') + ', ' + (fk.onDelete ?? 'no action');
+    return getForeignKeyonUpdate(fk) + ', ' + getForeignKeyonDelete(fk);
 }
 
 const COLORS = {

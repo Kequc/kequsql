@@ -1,5 +1,6 @@
 import pluralizeLib from 'pluralize';
 import { TRow } from '../types';
+import { TSchemaDate, TSchemaTime } from '../schema/types';
 
 export function arraysMatch (a: string[], b: string[]): boolean {
     if (a.length !== b.length) return false;
@@ -82,4 +83,12 @@ export function dig (data: TRow, breadcrumb: string[]): TRow | undefined {
 export function pluralize (count: number, singular: string, plural: string, showCount = true) {
     const text = count === 1 ? singular : plural;
     return showCount ? `${count} ${text}` : text;
+}
+
+export function dateToSql (date: Date): [TSchemaDate, TSchemaTime] {
+    const time = date.toISOString().replace('Z', '');
+    return [
+        time.split('T')[0] as TSchemaDate,
+        time.substring(0, time.lastIndexOf('.')).split('T')[1] as TSchemaTime,
+    ];
 }

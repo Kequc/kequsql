@@ -5,7 +5,7 @@ import { pluralize } from '../util/helpers';
 import findDifferences from './util/find-differences';
 import renderDifferences from './util/render-differences';
 import { assertValue, getAbsolute, getCheckTables, getDifferencesCount } from './util/helpers';
-import performMigration from './util/perform-migration';
+import createMigration from './util/create-migration';
 import { TDifferences } from './types';
 
 async function main () {
@@ -27,7 +27,7 @@ async function main () {
 
     const db: TKequsql = (await import(getAbsolute(location))).default;
     const checkTables = await getCheckTables(db);
-    const differences = findDifferences(db.schema.tables, checkTables);
+    const differences = findDifferences(db, checkTables);
     const differencesCount = getDifferencesCount(differences);
 
     if (differencesCount === 0) {
@@ -44,7 +44,12 @@ async function main () {
 
         if (persist) {
             s.start('Migrating...');
-            await performMigration(db, differences);
+            const migration = createMigration(db.sql, differences);
+            await db.transaction(async (query) => {
+                for (const rendered of migration) {
+                    await query(rendered);
+                }
+            });
             s.stop(`${pluralize(differencesCount, 'change', 'changes')} persisted.`);
         }
     }
@@ -53,7 +58,10 @@ async function main () {
     process.exit(0);
 }
 
-main();
+main().catch(error => {
+    console.error(error);
+    process.exit(1);
+});
 
 function renderChanges (differencesCount: number, differences: TDifferences) {
     const message = pluralize(differencesCount, 'change', 'changes');
