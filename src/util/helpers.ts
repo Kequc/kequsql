@@ -1,4 +1,4 @@
-import pluralize from 'pluralize';
+import pluralizeLib from 'pluralize';
 import { TRow } from '../types';
 
 export function arraysMatch (a: string[], b: string[]): boolean {
@@ -52,7 +52,7 @@ export function deepFreeze (o: any) {
 
 export function getDisplayTable (table: string, singular = true) {
     const name = table.charAt(0).toLowerCase() + table.slice(1);
-    return singular ? name : pluralize.plural(name);
+    return singular ? name : pluralizeLib.plural(name);
 }
 
 export function drill (data: TRow, breadcrumb: string[], value: unknown): void {
@@ -77,4 +77,9 @@ export function dig (data: TRow, breadcrumb: string[]): TRow | undefined {
     }
 
     return current;
+}
+
+export function pluralize (count: number, singular: string, plural: string, showCount = true) {
+    const text = count === 1 ? singular : plural;
+    return showCount ? `${count} ${text}` : text;
 }
