@@ -1,4 +1,4 @@
-import { TSchemaColumnDefault, TSchemaForeignKey, TSchemaIndex, TSchemaOptions, TSchemaTable, TSchemaTableOptions } from './schema-types';
+import { TSchemaColumnDefault, TSchemaForeignKey, TSchemaIndex, TSchemaOptions, TSchemaTable, TSchemaTableOptions } from './types';
 
 export function createSchema (schema: TSchemaOptions): TSchemaOptions {
     return schema;

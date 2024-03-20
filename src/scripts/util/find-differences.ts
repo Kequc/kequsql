@@ -1,7 +1,7 @@
-import { TCheckColumn, TCheckForeignKey, TCheckIndex, TCheckTable } from '../../dialects/check-types';
+import { TCheckColumn, TCheckForeignKey, TCheckIndex, TCheckTable } from '../../dialects/types';
 import { getColumns, getForeignKeyName, getIds, getIndexName } from '../../schema/schema-parser';
-import { TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaTable } from '../../schema/schema-types';
-import { TColumnsDifference, TDifferences, TForeignKeysDifference, TIndexesDifference, TTablesDifference } from '../scripts-types';
+import { TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaTable } from '../../schema/types';
+import { TColumnsDifference, TDifferences, TForeignKeysDifference, TIndexesDifference, TTablesDifference } from '../types';
 
 export default function findDifferences (schemaTables: TSchemaTable[], checkTables: TCheckTable[]): TDifferences {
     const tables: TTablesDifference = { create: [], delete: [] };

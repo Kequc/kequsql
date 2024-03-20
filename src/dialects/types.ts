@@ -1,4 +1,4 @@
-import { TSchemaForeignKeyAction, TSchemaIndexType } from '../schema/schema-types';
+import { TSchemaForeignKeyAction, TSchemaIndexType } from '../schema/types';
 
 export interface TCheckColumn {
     name: string;

@@ -1,7 +1,7 @@
 import { renderSql, zipper } from '../../util/helpers';
 import { TInternal } from '../../types';
-import { TCheckColumn, TCheckForeignKey, TCheckIndex, TCheckTable } from '../check-types';
-import { TSchemaForeignKeyAction, TSchemaIndexType } from '../../schema/schema-types';
+import { TCheckColumn, TCheckForeignKey, TCheckIndex, TCheckTable } from '../types';
+import { TSchemaForeignKeyAction, TSchemaIndexType } from '../../schema/types';
 
 export default async function getTables (db: TInternal): Promise<TCheckTable[]> {
     const query = renderSql(

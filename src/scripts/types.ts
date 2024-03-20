@@ -1,5 +1,5 @@
-import { TCheckColumn, TCheckForeignKey, TCheckIndex, TCheckTable } from '../dialects/check-types';
-import { TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaTable } from '../schema/schema-types';
+import { TCheckColumn, TCheckForeignKey, TCheckIndex, TCheckTable } from '../dialects/types';
+import { TSchemaColumn, TSchemaForeignKey, TSchemaIndex, TSchemaTable } from '../schema/types';
 
 export type TTablesDifference = {
     create: { table: TSchemaTable }[];

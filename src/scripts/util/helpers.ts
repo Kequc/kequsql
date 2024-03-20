@@ -3,7 +3,7 @@ import path from 'path';
 import { TKequsql } from '../../types';
 import checkMysql from '../../dialects/mysql/check';
 import checkPostgres from '../../dialects/postgres/check';
-import { TDifferences } from '../scripts-types';
+import { TDifferences } from '../types';
 
 type NotSymbol<T> = T extends symbol ? never : T;
 

@@ -1,7 +1,7 @@
 import 'kequtest';
 import assert from 'assert';
 import prepareFind from '../../../src/methods/find/prepare-find';
-import { TSchemaTableOptions } from '../../../src/schema/schema-types';
+import { TSchemaTableOptions } from '../../../src/schema/types';
 import { TInternal } from '../../../src/types';
 import getSchema from '../../../src/schema/get-schema';
 

@@ -1,6 +1,6 @@
 import { TInternal, TProjTable, TProjTables, TCreateManyOptions, TCreateOptions, TDestroyManyOptions, TDestroyOptions, TFindManyOptions, TFindOptions, TUpdateManyOptions, TUpdateOptions } from '../types';
 import { DbTable, TKey } from '../../project/types';
-import { TSchemaTable } from '../schema/schema-types';
+import { TSchemaTable } from './types';
 import performCreate from '../methods/create/perform-create';
 import performDestroy from '../methods/destroy/perform-destroy';
 import performUpdate from '../methods/update/perform-update';

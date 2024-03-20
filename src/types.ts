@@ -1,5 +1,5 @@
 import { DbTable, DbTableInclude, DbTableOptions, DbTableSelect, DbTableWhere, TKey } from '../project/types';
-import { TRelation, TSchema, TSchemaColumn, TSchemaOptions, TSchemaTable } from './schema/schema-types';
+import { TRelation, TSchema, TSchemaColumn, TSchemaOptions, TSchemaTable } from './schema/types';
 
 export type TDialect = 'mysql' | 'postgres';
 

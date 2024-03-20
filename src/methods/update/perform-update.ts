@@ -1,6 +1,6 @@
 import { TUpdateManyOptions, TInsertResponse, TInternal, TQuery } from '../../types';
 import { DbTable, TKey } from '../../../project/types';
-import { TSchemaTable } from '../../schema/schema-types';
+import { TSchemaTable } from '../../schema/types';
 import prepareUpdate from './prepare-update';
 import performFind from '../find/perform-find';
 

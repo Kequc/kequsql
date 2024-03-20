@@ -1,4 +1,4 @@
-import { TSchemaTable } from '../../schema/schema-types';
+import { TSchemaTable } from '../../schema/types';
 import { TDestroyManyOptions, TClientSql } from '../../types';
 import { TKey } from '../../../project/types';
 import { renderSql } from '../../util/helpers';

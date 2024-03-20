@@ -1,4 +1,4 @@
-import { TSchemaColumn } from '../../schema/schema-types';
+import { TSchemaColumn } from '../../schema/types';
 import { TClientSql } from '../../types';
 
 const sql: TClientSql = {

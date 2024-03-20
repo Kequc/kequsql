@@ -1,4 +1,4 @@
-import { TSchemaColumn, TSchemaIndex, TSchemaTable } from './schema-types';
+import { TSchemaColumn, TSchemaIndex, TSchemaTable } from './types';
 import { getColumns, getIds } from './schema-parser';
 
 export default function validateSchema (tables: TSchemaTable[]): void {

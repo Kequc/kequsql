@@ -1,4 +1,4 @@
-import { TRelation } from '../../schema/schema-types';
+import { TRelation } from '../../schema/types';
 import { DbTableOptions, TKey } from '../../../project/types';
 import { TRow, TCreateManyOptions, TInternal, TQuery, TWhereOptions } from '../../types';
 import performCreate from './perform-create';

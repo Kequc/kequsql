@@ -1,6 +1,6 @@
 import { DbTable, TKey } from '../../../project/types';
 import { TDestroyManyOptions, TInternal, TQuery } from '../../types';
-import { TSchemaTable } from '../../schema/schema-types';
+import { TSchemaTable } from '../../schema/types';
 import performFind from '../find/perform-find';
 import prepareDestroy from './prepare-destroy';
 

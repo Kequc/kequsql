@@ -6,7 +6,7 @@ import findDifferences from './util/find-differences';
 import renderDifferences from './util/render-differences';
 import { assertValue, getAbsolute, getCheckTables, getDifferencesCount } from './util/helpers';
 import performMigration from './util/perform-migration';
-import { TDifferences } from './scripts-types';
+import { TDifferences } from './types';
 
 async function main () {
     intro('Migrate');

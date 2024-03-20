@@ -1,4 +1,4 @@
-import { TRelation, TSchemaColumn, TSchemaTable } from '../schema/schema-types';
+import { TRelation, TSchemaColumn, TSchemaTable } from '../schema/types';
 import { TFindOptions, TStrategy, TWhereOptions } from '../types';
 import { TKey } from '../../project/types';
 

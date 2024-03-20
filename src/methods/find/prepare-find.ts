@@ -1,6 +1,6 @@
 import { renderSql } from '../../util/helpers';
 import { TKey } from '../../../project/types';
-import { TSchemaTable } from '../../schema/schema-types';
+import { TSchemaTable } from '../../schema/types';
 import { TFindManyOptions, TInternal } from '../../types';
 import { renderLimit, renderOrderBy, renderSelect } from '../../util/render-etc';
 import calcStrategy from '../../util/calc-strategy';

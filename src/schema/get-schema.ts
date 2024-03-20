@@ -1,8 +1,8 @@
 import { arraysMatch, deepFreeze, getDisplayTable } from '../util/helpers';
-import { TSchema, TSchemaForeignKey, TSchemaIndex, TSchemaTable, TSchemaTableOptions, TRelation, TReturnStrategy } from '../schema/schema-types';
+import { TSchema, TSchemaForeignKey, TSchemaIndex, TSchemaTable, TSchemaTableOptions, TRelation, TReturnStrategy } from './types';
 import validateSchema from '../schema/validate-schema';
 import { getColumns, getIds } from '../schema/schema-parser';
-import { TKey } from '../../project/types-example';
+import { TKey } from '../../project/types';
 import { TOptions } from '../types';
 
 export default function getSchema ({ schema }: TOptions): TSchema {

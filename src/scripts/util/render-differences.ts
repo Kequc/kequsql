@@ -1,6 +1,6 @@
 import { pluralize } from '../../util/helpers';
 import { getForeignKeyName, getIndexName } from '../../schema/schema-parser';
-import { TDifferences } from '../scripts-types';
+import { TDifferences } from '../types';
 import { green, red } from './helpers';
 
 type TTableRow = [string, string, string];

@@ -1,6 +1,6 @@
 import { TCreateManyOptions, TInsertResponse, TInternal, TQuery, TRow } from '../../types';
 import { DbTable, TKey } from '../../../project/types';
-import { TRelation, TSchemaTable } from '../../schema/schema-types';
+import { TRelation, TSchemaTable } from '../../schema/types';
 import prepareCreate from './prepare-create';
 import getReturnOptions from './get-return-options';
 import performCreateRelation from './perform-create-relations';
