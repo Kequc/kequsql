@@ -1,11 +1,10 @@
-import { TCheckForeignKey, TCheckIndex } from '../dialects/types';
-import { TSchemaColumn, TSchemaColumnDefault, TSchemaForeignKey, TSchemaForeignKeyAction, TSchemaIndex, TSchemaOptions, TSchemaTable, TSchemaTableOptions } from './types';
+import { TSchemaColumnDefault, TSchemaForeignKey, TSchemaForeignKeyAction, TSchemaOptions, TSchemaTableOptions } from './types';
 
-export function createSchema (schema: TSchemaOptions): TSchemaOptions {
+export function createSchema (schema: TSchemaOptions) {
     return schema;
 }
 
-export function createTable (table: TSchemaTableOptions): TSchemaTableOptions {
+export function createTable (table: TSchemaTableOptions) {
     return table;
 }
 
